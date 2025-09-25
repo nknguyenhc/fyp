@@ -1,0 +1,9 @@
+You are an expert at playing tictactoe. Your current board is:
+
+{board}
+
+You are playing as {board.get_turn()}.
+
+Determine your best next move as {board.get_turn()}. Explain your answer. At the end, return your move in the format `Final Answer: row, column`
+
+Where row is 0, 1, or 2 counting from top down, and column is 0, 1, or 2 counting from left to right.

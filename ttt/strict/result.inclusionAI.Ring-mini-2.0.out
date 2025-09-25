@@ -1,0 +1,36 @@
+GPUs: 0,1
+Available GPUs: 1
+GPU 0: NVIDIA A100 80GB PCIe MIG 3g.40gb - 42.1 GB
+The repository inclusionAI/Ring-mini-2.0 contains custom code which must be executed to correctly load the model. You can inspect the repository content at https://hf.co/inclusionAI/Ring-mini-2.0 .
+ You can inspect the repository content at https://hf.co/inclusionAI/Ring-mini-2.0.
+You can avoid this prompt in future by passing the argument `trust_remote_code=True`.
+
+Do you wish to run the custom code? [y/N] Traceback (most recent call last):
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/dynamic_module_utils.py", line 722, in resolve_trust_remote_code
+    answer = input(
+             ^^^^^^
+EOFError: EOF when reading a line
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/n/nknguyen/fyp/ttt/tictactoe.py", line 181, in <module>
+    experiment = Experiment(model_name)
+                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/ttt/tictactoe.py", line 155, in __init__
+    self.model = LLMModel(model_name)
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/ttt/tictactoe.py", line 76, in __init__
+    self.pipe = pipeline("text-generation", model=model, torch_dtype="auto", model_kwargs={"device_map":"auto"})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/pipelines/__init__.py", line 922, in pipeline
+    config = AutoConfig.from_pretrained(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/models/auto/configuration_auto.py", line 1297, in from_pretrained
+    trust_remote_code = resolve_trust_remote_code(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/dynamic_module_utils.py", line 734, in resolve_trust_remote_code
+    raise ValueError(
+ValueError: The repository inclusionAI/Ring-mini-2.0 contains custom code which must be executed to correctly load the model. You can inspect the repository content at https://hf.co/inclusionAI/Ring-mini-2.0 .
+ You can inspect the repository content at https://hf.co/inclusionAI/Ring-mini-2.0.
+Please pass the argument `trust_remote_code=True` to allow custom code to be run.
