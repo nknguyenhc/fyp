@@ -41,7 +41,7 @@ The game history is given below. Respond only with the next move by indicating t
         prompts = [self._get_prompt_from_history(history) for history in histories]
         for i, prompt in enumerate(prompts):
             print(f"Prompt {i}: {prompt}", flush=True)
-        results = self.pipe(prompts, max_new_tokens=200, do_sample=True, temperature=0.3)
+        results = self.pipe(prompts, max_new_tokens=2, do_sample=True, temperature=0.3)
         responses = [result[0]['generated_text'][len(prompt):] for result, prompt in zip(results, prompts)]
         for i, response in enumerate(responses):
             print(f"Response {i}: {response}", flush=True)
@@ -54,16 +54,16 @@ The game history is given below. Respond only with the next move by indicating t
                 move_num = int(move_str) - 1
                 if not 0 <= move_num <= 80:
                     return None
-                board = (move_num - 1) // 9
-                cell = (move_num - 1) % 9
+                board = move_num // 9
+                cell = move_num % 9
                 return board // 3, board % 3, cell // 3, cell % 3
             char = response[i]
             if char.isdigit():
                 move_num = int(char) - 1
                 if not 0 <= move_num <= 80:
                     return None
-                board = (move_num - 1) // 9
-                cell = (move_num - 1) % 9
+                board = move_num // 9
+                cell = move_num % 9
                 return board // 3, board % 3, cell // 3, cell % 3
         return None
 
