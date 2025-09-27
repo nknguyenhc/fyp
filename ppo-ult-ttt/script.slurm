@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --output=result.ppo.out
-#SBATCH --error=result.ppo.out
+#SBATCH --output=result.ppo.Qwen.Qwen3-8B.out
+#SBATCH --error=result.ppo.Qwen.Qwen3-8B.out
 #SBATCH --time=03:00:00
 #SBATCH --mem=64G
 #SBATCH --gres=gpu:h100-96:1
@@ -24,7 +24,7 @@ python ttt_ppo.py \
     --gradient_accumulation_steps 4 \
     --torch_dtype float16 \
     --total_episodes 2000 \
-    --model_name_or_path Qwen/Qwen2.5-1.5B-Instruct \
+    --model_name_or_path Qwen/Qwen3-8B \
     --use_peft \
     --lora_r 16 \
     --lora_alpha 32
