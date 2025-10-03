@@ -3,7 +3,7 @@
 #SBATCH --error=result.ppo.Qwen.Qwen3-8B.out
 #SBATCH --time=03:00:00
 #SBATCH --mem=64G
-#SBATCH --gres=gpu:h100-96:1
+#SBATCH --gres=gpu:h100-96:2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --job-name=ppo-Qwen
@@ -19,11 +19,12 @@ python ttt_ppo.py \
     --learning_rate 3e-6 \
     --num_ppo_epochs 1 \
     --num_mini_batches 2 \
-    --output_dir ttt-ppo \
-    --per_device_train_batch_size 2 \
-    --gradient_accumulation_steps 4 \
+    --output_dir Qwen.Qwen3-8B \
+    --per_device_train_batch_size 4 \
+    --gradient_accumulation_steps 8 \
+    --gradient_checkpointing True \
     --torch_dtype float16 \
-    --total_episodes 2000 \
+    --total_episodes 5000 \
     --model_name_or_path Qwen/Qwen3-8B \
     --use_peft \
     --lora_r 16 \

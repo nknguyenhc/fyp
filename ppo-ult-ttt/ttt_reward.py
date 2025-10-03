@@ -37,13 +37,17 @@ class TTTReward:
         self.base_model_prefix = 'huh'
         self.huh = self.forward
         self.tokenizer = tokenizer
+        self.device = next(iter(tokenizer.model.parameters())).device if hasattr(tokenizer, 'model') else 'cuda'
 
     def forward(self, *args, **kwargs):
-        decoded = self.tokenizer.batch_decode(kwargs['input_ids'], skip_special_tokens=True)
-        questions_and_answers = [get_board_and_answer(text) for text in decoded]
-        scores = torch.tensor([get_score(prev_move, question, answer) for prev_move, question, answer in questions_and_answers], dtype=torch.float32).unsqueeze(1)
-        item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2)), scores.repeat(1, 2)), dim=1)
-        return ForwardResult(item.to('cuda'))
+        with torch.no_grad():
+            decoded = self.tokenizer.batch_decode(kwargs['input_ids'], skip_special_tokens=True)
+            questions_and_answers = [get_board_and_answer(text) for text in decoded]
+            scores = torch.tensor([get_score(prev_move, question, answer) for prev_move, question, answer in questions_and_answers],
+                                  dtype=torch.float32).unsqueeze(1)
+            item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2)),
+                                 scores.repeat(1, 2)), dim=1)
+            return ForwardResult(item.to('cuda'))
 
     def score(self, scores: torch.Tensor):
         return scores
@@ -51,5 +55,6 @@ class TTTReward:
     def modules(self):
         return []
     
-    def to(self, _):
+    def to(self, device):
+        self.device = device
         return self
