@@ -47,7 +47,7 @@ class TTTReward:
                                   dtype=torch.float32).unsqueeze(1)
             item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2)),
                                  scores.repeat(1, 2)), dim=1)
-            return ForwardResult(item.to('cuda'))
+            return ForwardResult(item.to(self.device))
 
     def score(self, scores: torch.Tensor):
         return scores
