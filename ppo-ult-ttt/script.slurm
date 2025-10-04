@@ -28,4 +28,5 @@ python ttt_ppo.py \
     --model_name_or_path Qwen/Qwen3-8B \
     --use_peft \
     --lora_r 16 \
-    --lora_alpha 32
+    --lora_alpha 32 \
+    --lora_target_modules q_proj k_proj v_proj o_proj
