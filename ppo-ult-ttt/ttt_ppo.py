@@ -4,6 +4,7 @@ from trl import PPOTrainer, ScriptArguments, PPOConfig, ModelConfig, get_quantiz
 from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
 import shutil
 import torch
+import gc
 
 from ttt_dataset import get_dataset
 from ttt_reward import TTTReward
@@ -15,6 +16,9 @@ def prepare_dataset(dataset, tokenizer):
     return dataset.map(tokenize_function, batched=True, remove_columns=['query'])
 
 def main():
+    torch.cuda.empty_cache()
+    gc.collect()
+
     parser = HfArgumentParser((ScriptArguments, PPOConfig, ModelConfig))
     _, training_args, model_args = parser.parse_args_into_dataclasses()
     shutil.rmtree(training_args.output_dir, ignore_errors=True)

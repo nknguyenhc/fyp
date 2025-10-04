@@ -12,6 +12,7 @@ echo "GPUs: $CUDA_VISIBLE_DEVICES"
 
 export TOKENIZERS_PARALLELISM=false
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+export CUDA_LAUNCH_BLOCKING=1
 
 python ttt_ppo.py \
     --dataset_train_split descriptiveness \
