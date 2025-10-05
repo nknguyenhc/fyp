@@ -36,9 +36,9 @@ def main():
     )
     if quantization_config is not None:
         model_kwargs["quantization_config"] = quantization_config
+    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, padding_side="left")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, padding_side="left")
     model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
     if tokenizer.chat_template is None:
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
