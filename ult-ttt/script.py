@@ -25,7 +25,31 @@ class LLMModel:
 58 59 60 | 67 68 69 | 76 77 78
 61 62 63 | 70 71 72 | 79 80 81
 
-Note that a player's move determines where the opponent can move in the next move. For example, if player A moves at top-left corner of a subboard, the next player has to move at the top-left subboard. If the board one being sent to, in this example the top-left subboard, is already won by any player or is full, then the player can move anywhere on the board (except from subboards already won or are full). The player making the first move is always free to move anywhere.
+Define the following subboards:
+
+* Top-left: numbers from 1 to 9
+* Top-middle: numbers from 10 to 18
+* Top right: numbers from 19 to 27
+* Middle-left: numbers from 28 to 36
+* Middle: numbers from 37 to 45
+* Middle-right: numbers from 46 to 54
+* Bottom-left: numbers from 55 to 63
+* Bottom-middle: numbers from 64 to 72
+* Bottom-right: numbers from 73 to 81
+
+Note that a player's move determines where the opponent can move in the next move.
+
+* If current player moves at top-left cell of a subboard: 1, 10, 19, 28, 37, 46, 55, 64, 73, then the opponent has to move in an empty cell of the top-left subboard.
+* If current player moves at top-middle cell of a subboard: 2, 11, 20, 29, 38, 47, 56, 65, 74, then the opponent has to move in an empty cell of the top-middle subboard.
+* If current player moves at top-right cell of a subboard: 3, 12, 21, 30, 39, 48, 57, 66, 75, then the opponent has to move in an empty cell of the top-right subboard.
+* If current player moves at middle-left cell of a subboard: 4, 13, 22, 31, 40, 49, 58, 67, 76, then the opponent has to move in an empty cell of the middle-left subboard.
+* If current player moves at middle cell of a subboard: 5, 14, 23, 32, 41, 50, 59, 68, 77, then the opponent has to move in an empty cell of the middle subboard.
+* If current player moves at middle-right cell of a subboard: 6, 15, 24, 33, 42, 51, 60, 69, 78, then the opponent has to move in an empty cell of the middle-right subboard.
+* If current player moves at bottom-left cell of a subboard: 7, 16, 25, 34, 43, 52, 61, 70, 79, then the opponent has to move in an empty cell of the bottom-left subboard.
+* If current player moves at bottom-middle cell of a subboard: 8, 17, 26, 35, 44, 53, 62, 71, 80, then the opponent has to move in an empty cell of the bottom-middle subboard.
+* If current player moves at bottom-right cell of a subboard: 9, 18, 27, 36, 45, 54, 63, 72, 81, then the opponent has to move in an empty cell of the bottom-right subboard.
+
+If the subboard that the opponent is sent to is already won by any player or is full, then the player can move anywhere on the board (except from subboards already won or are full). The player making the first move is always free to move anywhere.
 
 The game history is given below. Respond only with the next move by indicating the number corresponding to the cell where you want to place your mark. Do not include any explanations or additional text.
 
