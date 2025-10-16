@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --output=result.google.gemma-2-2b-it.out
-#SBATCH --error=result.google.gemma-2-2b-it.out
+#SBATCH --output=result.prompt-tuning.google.gemma-2-2b-it.out
+#SBATCH --error=result.prompt-tuning.google.gemma-2-2b-it.out
 #SBATCH --time=06:00:00
 #SBATCH --mem=64G
 #SBATCH --gres=gpu:h100-96:1
