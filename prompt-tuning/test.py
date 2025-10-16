@@ -61,10 +61,8 @@ def _get_moves_from_histories(tokenizer, model: PromptTuning, histories: list[tu
     encodings = tokenizer(prompts, return_tensors='pt', padding=True, truncation=True)
     input_ids = encodings['input_ids'].to(model.soft_prompt.device)
     attention_mask = encodings['attention_mask'].to(model.soft_prompt.device)
-    with torch.no_grad():
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        generated_ids = torch.argmax(outputs.logits, dim=-1)
-    responses = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    outputs = model.generate(input_ids=input_ids, attention_mask=attention_mask)
+    responses = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     for i, response in enumerate(responses):
         print(f"Response {i}: {response}", flush=True)
     return [_parse_response_from_history(response) for response in responses]

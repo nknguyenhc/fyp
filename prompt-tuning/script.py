@@ -114,6 +114,36 @@ class PromptTuning(nn.Module):
         )
         
         return outputs
+    
+    def generate(self, input_ids, attention_mask, max_new_tokens=2):
+        # Get input embeddings
+        batch_size = input_ids.shape[0]
+        inputs_embeds = self.model.get_input_embeddings()(input_ids)
+        
+        # Expand soft prompt for batch
+        soft_prompt_batch = self.soft_prompt.unsqueeze(0).expand(
+            batch_size, -1, -1
+        )
+        
+        # Concatenate soft prompt with input embeddings
+        inputs_embeds = torch.cat([soft_prompt_batch, inputs_embeds], dim=1)
+        
+        # Extend attention mask for soft prompt
+        if attention_mask is not None:
+            prompt_mask = torch.ones(
+                batch_size, self.n_prompt_tokens,
+                dtype=attention_mask.dtype,
+                device=attention_mask.device
+            )
+            attention_mask = torch.cat([prompt_mask, attention_mask], dim=1)
+        
+        # Generate
+        outputs = self.model.generate(
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            max_new_tokens=max_new_tokens
+        )
+        return outputs
 
 def train_prompt_tuning(
     model_name: str,
