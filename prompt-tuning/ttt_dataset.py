@@ -32,11 +32,5 @@ The game history is given below. Respond only with the next move by indicating t
         return prompt
 
     game_histories: list[tuple[list[ImmutableState], list[Action]]] = [generate_game_history() for _ in range(num_samples)]
-    prompts_list = [get_prompt(game_history) for game_history in game_histories]
-    next_moves_list = [get_all_valid_actions(game_history[0][-1]) for game_history in game_histories]
-    rows = []
-    for prompt, next_moves_list in zip(prompts_list, next_moves_list):
-        for next_move in next_moves_list:
-            move_num = 27 * next_move[0] + 9 * next_move[1] + 3 * next_move[2] + next_move[3] + 1
-            rows.append({"query": prompt, "output": str(move_num)})
-    return rows
+    dataset: list[str] = [get_prompt(game_history) for game_history in game_histories]
+    return Dataset.from_dict({"query": dataset})
