@@ -12,11 +12,6 @@ echo "GPUs: $CUDA_VISIBLE_DEVICES"
 
 export TOKENIZERS_PARALLELISM=false
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
-
-echo "GPUs: $CUDA_VISIBLE_DEVICES"
-
-export TOKENIZERS_PARALLELISM=false
-export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 export CUDA_LAUNCH_BLOCKING=1
 export TORCH_USE_CUDA_DSA=1
 
@@ -27,7 +22,7 @@ python script.py \
     --num_ppo_epochs 1 \
     --num_mini_batches 2 \
     --output_dir google.gemma-2-2b-it \
-    --per_device_train_batch_size 4 \
+    --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
     --torch_dtype float16 \

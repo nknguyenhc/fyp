@@ -2,10 +2,7 @@ from datasets import Dataset
 
 from ult_ttt import *
 
-def get_dataset(num_samples: int = 1000):
-    def get_prompt(history: tuple[list[ImmutableState], list[Action]]) -> str:
-        boards, moves = history
-        prompt = """You are an expert at playing ultimate tictactoe. The board is 9x9 consisting of 3x3 smaller subboards where each cell can be empty (-), contain an X, or contain an O. To indicate a move, Use the corresponding number for the cell where you want to place your mark:
+init_prompt = prompt = """You are an expert at playing ultimate tictactoe. The board is 9x9 consisting of 3x3 smaller subboards where each cell can be empty (-), contain an X, or contain an O. To indicate a move, Use the corresponding number for the cell where you want to place your mark:
 
 1  2  3  | 10 11 12 | 19 20 21
 4  5  6  | 13 14 15 | 22 23 24
@@ -24,7 +21,11 @@ Note that a player's move determines where the opponent can move in the next mov
 The game history is given below. Respond only with the next move by indicating the number corresponding to the cell where you want to place your mark. Do not include any explanations or additional text.
 
 """
-        prompt += f"Board:\n{convert_board_to_string(boards[0].board)}"
+
+def get_dataset(num_samples: int = 1000):
+    def get_prompt(history: tuple[list[ImmutableState], list[Action]]) -> str:
+        boards, moves = history
+        prompt = f"Board:\n{convert_board_to_string(boards[0].board)}"
         for board, move in zip(boards[1:], moves):
             move_num = 27 * move[0] + 9 * move[1] + 3 * move[2] + move[3] + 1
             prompt += f"\nMove: {move_num}\nBoard:\n{convert_board_to_string(board.board)}"
