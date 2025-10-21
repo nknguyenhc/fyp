@@ -16,6 +16,28 @@ def prepare_dataset(dataset, tokenizer):
 
     return dataset.map(tokenize_function, batched=True, remove_columns=['query'])
 
+class ModelWrapper(torch.nn.Module):
+    def __init__(self, model, n_prompt_tokens: int):
+        super().__init__()
+        self.__model = model
+        self._n_prompt_tokens = n_prompt_tokens
+    
+    def generate(self, *args, **kwargs):
+        return self.__model.generate(*args, **kwargs)
+
+    def forward(self, *args, **kwargs):
+        result = self.__model(*args, **kwargs)
+        # Some heuristic to cut the extra logits
+        if "inputs_embeds" in kwargs:
+            result.logits = result.logits[:, self._n_prompt_tokens:, :]
+        return result
+
+    def __getattr__(self, name):
+        try:
+            return super().__getattr__(name)
+        except AttributeError:
+            return getattr(self.__model, name)
+
 def train_prompt_tuning(
     n_prompt_tokens=100,
 ):
@@ -37,6 +59,7 @@ def train_prompt_tuning(
         attn_implementation=model_args.attn_implementation,
         torch_dtype=torch_dtype,
         device_map=device_map,
+        trust_remote_code=model_args.trust_remote_code,
     )
     if quantization_config is not None:
         model_kwargs["quantization_config"] = quantization_config
@@ -48,6 +71,7 @@ def train_prompt_tuning(
     if tokenizer.chat_template is None:
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
     model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
+    model = ModelWrapper(model, n_prompt_tokens)
     
     # Prepare dataset
     dataset = get_dataset()
@@ -59,8 +83,6 @@ def train_prompt_tuning(
         num_virtual_tokens=n_prompt_tokens,
         token_dim=model.config.hidden_size,
         num_transformer_submodules=1,
-        num_attention_heads=model.config.num_attention_heads,
-        num_layers=model.config.num_hidden_layers,
         prompt_tuning_init="TEXT",
         prompt_tuning_init_text=init_prompt,
         tokenizer_name_or_path=model_args.model_name_or_path,

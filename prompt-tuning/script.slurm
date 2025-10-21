@@ -27,5 +27,6 @@ python script.py \
     --gradient_checkpointing True \
     --torch_dtype float16 \
     --total_episodes 5000 \
+    --trust_remote_code True \
     --model_name_or_path google/gemma-2-2b-it
 
