@@ -2,7 +2,7 @@ from datasets import Dataset
 
 from ult_ttt import *
 
-init_prompt = prompt = """You are an expert at playing ultimate tictactoe. The board is 9x9 consisting of 3x3 smaller subboards where each cell can be empty (-), contain an X, or contain an O. To indicate a move, Use the corresponding number for the cell where you want to place your mark:
+init_prompt = """You are an expert at playing ultimate tictactoe. The board is 9x9 consisting of 3x3 smaller subboards where each cell can be empty (-), contain an X, or contain an O. To indicate a move, Use the corresponding number for the cell where you want to place your mark:
 
 1  2  3  | 10 11 12 | 19 20 21
 4  5  6  | 13 14 15 | 22 23 24
