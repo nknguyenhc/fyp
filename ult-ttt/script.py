@@ -4,8 +4,8 @@ import sys
 from ult_ttt import *
 
 class LLMModel:
-    def __init__(self, model: str):
-        self.pipe = pipeline("text-generation", model=model, torch_dtype="auto", model_kwargs={"device_map":"auto"}, trust_remote_code=True)
+    def __init__(self, model: str, trust_remote_code: bool):
+        self.pipe = pipeline("text-generation", model=model, torch_dtype="auto", model_kwargs={"device_map":"auto"}, trust_remote_code=trust_remote_code)
         self.pipe.model.generation_config.pad_token_id = self.pipe.tokenizer.eos_token_id
     
     def _get_prompt_from_history(self, history: tuple[list[ImmutableState], list[Action]]) -> str:
@@ -92,8 +92,8 @@ The game history is given below. Respond only with the next move by indicating t
         return None
 
 class Experiment:
-    def __init__(self, model_name: str = "LiquidAI/LFM2-350M"):
-        self.model = LLMModel(model_name)
+    def __init__(self, model_name: str, trust_remote_code: bool):
+        self.model = LLMModel(model_name, trust_remote_code)
         self.model_name = model_name
 
     def run(self, num_games: int = 500, batch_size: int = 10):
@@ -104,7 +104,7 @@ class Experiment:
             game_histories: list[tuple[list[ImmutableState], list[Action]]] = [generate_game_history() for _ in range(batch_size)]
             moves = self.model.get_moves_from_histories(game_histories)
             for game, move in zip(game_histories, moves):
-                if not move:
+                if move is None:
                     invalid_format += 1
                     continue
                 if not is_valid_action(game[0][-1], move):
@@ -119,5 +119,6 @@ class Experiment:
 
 if __name__ == '__main__':
     model_name = sys.argv[1]
-    experiment = Experiment(model_name)
+    trust_remote_code = sys.argv[2].lower() == 'true'
+    experiment = Experiment(model_name, trust_remote_code)
     experiment.run()
