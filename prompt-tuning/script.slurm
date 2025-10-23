@@ -21,12 +21,12 @@ python script.py \
     --learning_rate 1e-7 \
     --num_ppo_epochs 1 \
     --num_mini_batches 2 \
-    --output_dir google.gemma-2-2b-it \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
     --torch_dtype float16 \
     --total_episodes 5000 \
     --trust_remote_code True \
+    --save_safetensors False \
     --model_name_or_path google/gemma-2-2b-it
 
