@@ -286,11 +286,11 @@ class Board:
             self.X_table == other.X_table and \
             self.O_table == other.O_table
 
-def generate_game_history() -> tuple[list[Board], list[int]]:
+def generate_game_history(min_moves: int = 3, max_moves: int = 9) -> tuple[list[Board], list[int]]:
     boards: list[Board] = [Board()]
     moves: list[int] = []
     current_board = boards[0]
-    num_steps = random.randint(3, 9)
+    num_steps = random.randint(min_moves, max_moves)
     for _ in range(num_steps):
         if current_board.winner != State.UNDETERMINED:
             break
@@ -301,4 +301,11 @@ def generate_game_history() -> tuple[list[Board], list[int]]:
         moves.append(action)
     if current_board.winner != State.UNDETERMINED:
         return generate_game_history()
+    return (boards, moves)
+
+def generate_game_history_with_full_columns():
+    boards, moves = generate_game_history(9, 18)
+    last_board = boards[-1]
+    if all(i in last_board.actions() for i in range(width)):
+        return generate_game_history_with_full_columns()
     return (boards, moves)

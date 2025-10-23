@@ -1,7 +1,7 @@
 from transformers import pipeline
 import sys
 
-from connect_4 import Board, generate_game_history
+from connect_4 import Board, generate_game_history_with_full_columns
 from config import width
 
 class LLMModel:
@@ -58,7 +58,7 @@ class Experiment:
         invalid_moves = 0
         valid_moves = 0
         for _ in range(num_games // batch_size):
-            game_histories: list[tuple[list[Board], list[int]]] = [generate_game_history() for _ in range(batch_size)]
+            game_histories: list[tuple[list[Board], list[int]]] = [generate_game_history_with_full_columns() for _ in range(batch_size)]
             moves = self.model.get_moves_from_histories(game_histories)
             for game, move in zip(game_histories, moves):
                 if move is None:
