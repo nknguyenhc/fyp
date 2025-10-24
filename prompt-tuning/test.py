@@ -1,12 +1,37 @@
-from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
+from accelerate import PartialState
+import torch
 import sys
 
 from ult_ttt import *
+from script import ModelWrapper
 
 class LLMModel:
-    def __init__(self, model: str):
-        self.pipe = pipeline("text-generation", model=model, torch_dtype="auto", model_kwargs={"device_map":"auto"}, trust_remote_code=True)
-        self.pipe.model.generation_config.pad_token_id = self.pipe.tokenizer.eos_token_id
+    def __init__(self, model: str, trust_remote_code: bool):
+        self.tokenizer = AutoTokenizer.from_pretrained(model, padding_side="left")
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+        if self.tokenizer.chat_template is None:
+            self.tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
+
+        model_kwargs = dict(
+            torch_dtype=torch.float16,
+            device_map=None,
+            trust_remote_code=trust_remote_code,
+        )
+        base_model = AutoModelForCausalLM.from_pretrained(
+            model,
+            **model_kwargs,
+        )
+        self.model = ModelWrapper(base_model, n_prompt_tokens=100)
+
+        # Load the soft prompts
+        self.model.soft_tokens.data = torch.load(f"{model.replace('/', '.')}.soft_prompt.pt")
+
+        accel = PartialState()
+        device = accel.device if hasattr(accel, "device") else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = self.model.to(device)
     
     def _get_prompt_from_history(self, history: tuple[list[ImmutableState], list[Action]]) -> str:
         boards = history[0]
@@ -41,8 +66,11 @@ The game history is given below. Respond only with the next move by indicating t
         prompts = [self._get_prompt_from_history(history) for history in histories]
         for i, prompt in enumerate(prompts):
             print(f"Prompt {i}: {prompt}", flush=True)
-        results = self.pipe(prompts, max_new_tokens=2, do_sample=True, temperature=0.3)
-        responses = [result[0]['generated_text'][len(prompt):] for result, prompt in zip(results, prompts)]
+        inputs = self.tokenizer(prompts, return_tensors="pt", padding=True).to(self.model.device)
+        results = self.model.generate(**inputs, max_new_tokens=2, do_sample=True, temperature=0.3)
+        context_length = inputs['input_ids'].shape[1]
+        results = results[:, context_length:]
+        responses = [self.tokenizer.decode(result, skip_special_tokens=True) for result in results]
         for i, response in enumerate(responses):
             print(f"Response {i}: {response}", flush=True)
         return [self._parse_response_from_history(response) for response in responses]
@@ -68,8 +96,8 @@ The game history is given below. Respond only with the next move by indicating t
         return None
 
 class Experiment:
-    def __init__(self, model_name: str = "LiquidAI/LFM2-350M"):
-        self.model = LLMModel(model_name)
+    def __init__(self, model_name: str, trust_remote_code: bool):
+        self.model = LLMModel(model_name, trust_remote_code=trust_remote_code)
         self.model_name = model_name
 
     def run(self, num_games: int = 500, batch_size: int = 10):
@@ -88,12 +116,13 @@ class Experiment:
                     continue
                 valid_moves += 1
 
-        with open(f"result.{self.model_name[2:]}.txt", "w") as f:
+        with open(f"result.{self.model_name.replace('/', '.')}.txt", "w") as f:
             f.write(f"Invalid format: {invalid_format}\n")
             f.write(f"Invalid moves: {invalid_moves}\n")
             f.write(f"Valid moves: {valid_moves}\n")
 
 if __name__ == '__main__':
     model_name = sys.argv[1]
-    experiment = Experiment(model_name)
+    trust_remote_code = sys.argv[2].lower() == "true"
+    experiment = Experiment(model_name, trust_remote_code)
     experiment.run()

@@ -13,4 +13,4 @@ echo "GPUs: $CUDA_VISIBLE_DEVICES"
 export TOKENIZERS_PARALLELISM=false
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
-python test.py ./google.gemma-2-2b-it
+python test.py google/gemma-2-2b-it true
