@@ -1,9 +1,8 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, HfArgumentParser
-from trl import PPOTrainer, ScriptArguments, PPOConfig, ModelConfig, get_quantization_config, get_kbit_device_map
+from trl import PPOTrainer, ScriptArguments, PPOConfig, ModelConfig, get_quantization_config
 from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
 from accelerate import PartialState
-import shutil
 import gc
 
 from ttt_dataset import get_dataset, init_prompt
@@ -12,7 +11,6 @@ from ttt_reward import TTTReward
 def prepare_dataset(dataset, tokenizer):
     def tokenize_function(examples):
         return tokenizer(examples["query"], padding=True, truncation=True)
-
     return dataset.map(tokenize_function, batched=True, remove_columns=['query'])
 
 class ModelWrapper(torch.nn.Module):
@@ -26,30 +24,36 @@ class ModelWrapper(torch.nn.Module):
         if "input_ids" in kwargs:
             input_ids = kwargs["input_ids"]
             batch_size = input_ids.size(0)
-            soft_tokens = self.soft_tokens.expand(batch_size, -1, -1)
             inputs_embeds = self.__model.get_input_embeddings()(input_ids)
+            # Ensure soft tokens are on the same device as inputs_embeds
+            soft_tokens = self.soft_tokens.to(inputs_embeds.device).expand(batch_size, -1, -1)
             inputs_embeds = torch.cat([soft_tokens, inputs_embeds], dim=1)
             kwargs["inputs_embeds"] = inputs_embeds
             del kwargs["input_ids"]
         elif "inputs_embeds" in kwargs:
             inputs_embeds = kwargs["inputs_embeds"]
             batch_size = inputs_embeds.size(0)
-            soft_tokens = self.soft_tokens.expand(batch_size, -1, -1)
+            # Ensure soft tokens are on the same device as inputs_embeds
+            soft_tokens = self.soft_tokens.to(inputs_embeds.device).expand(batch_size, -1, -1)
             inputs_embeds = torch.cat([soft_tokens, inputs_embeds], dim=1)
             kwargs["inputs_embeds"] = inputs_embeds
         # Extend attention mask if provided
         if "attention_mask" in kwargs:
             attention_mask = kwargs["attention_mask"]
             soft_attention_mask = torch.ones(
-                attention_mask.size(0), self.soft_tokens.size(1), device=attention_mask.device)
+                attention_mask.size(0),
+                self.soft_tokens.size(1),
+                device=attention_mask.device,
+                dtype=attention_mask.dtype,
+            )
             attention_mask = torch.cat([soft_attention_mask, attention_mask], dim=1)
             kwargs["attention_mask"] = attention_mask
         # Extend position ids if provided
         if "position_ids" in kwargs:
             position_ids = kwargs["position_ids"]
             soft_position_ids = torch.arange(
-                self.soft_tokens.size(1), device=position_ids.device).unsqueeze(0).expand(
-                    position_ids.size(0), -1)
+                self.soft_tokens.size(1), device=position_ids.device, dtype=position_ids.dtype
+            ).unsqueeze(0).expand(position_ids.size(0), -1)
             position_ids = torch.cat([soft_position_ids, position_ids], dim=1)
             kwargs["position_ids"] = position_ids
         result = self.__model(*args, **kwargs)
@@ -76,7 +80,10 @@ def train_prompt_tuning(
         model_args.torch_dtype if model_args.torch_dtype in ["auto", None] else getattr(torch, model_args.torch_dtype)
     )
     quantization_config = get_quantization_config(model_args)
-    device_map = "auto" if quantization_config is None else get_kbit_device_map()
+
+    # Do not shard the model; let Accelerate/DeepSpeed handle parallelism
+    device_map = None
+
     model_kwargs = dict(
         revision=model_args.model_revision,
         attn_implementation=model_args.attn_implementation,
@@ -95,7 +102,12 @@ def train_prompt_tuning(
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
     model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
     model = ModelWrapper(model, n_prompt_tokens)
-    
+
+    # Place the wrapper on the current process device
+    accel = PartialState()
+    device = accel.device if hasattr(accel, "device") else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+
     # Prepare dataset
     dataset = get_dataset()
     with PartialState().local_main_process_first():
