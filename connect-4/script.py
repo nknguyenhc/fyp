@@ -19,6 +19,8 @@ class LLMModel:
         moves = history[1]
         prompt = """You are an expert at playing connect-4. The board is 7 columns wide and 6 rows high, where each cell can be empty (-), contain an X, or contain an O. To indicate a move, respond with the number of the column (1 to 7) where you want to place your mark.
 
+When a player places their mark in a column, it occupies the lowest available cell in that column. The objective of the game is to connect four of your marks in a row, either horizontally, vertically, or diagonally. You are not allowed to place a mark in a column that is already full.
+
 The game history is given below. Respond only with the next move by indicating the number corresponding to the column where you want to place your mark. Do not include any explanations or additional text.
 
 """
