@@ -1,0 +1,3 @@
+Invalid format: 0
+Invalid moves: 0
+Valid moves: 500
