@@ -1,0 +1,114 @@
+GPUs: 0,1
+/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/trl/trainer/model_config.py:194: FutureWarning: `torch_dtype` is deprecated and will be removed in version 0.27.0, please use `dtype` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s]Loading checkpoint shards:  17%|█▋        | 1/6 [00:00<00:04,  1.19it/s]Loading checkpoint shards:  33%|███▎      | 2/6 [00:01<00:03,  1.26it/s]Loading checkpoint shards:  50%|█████     | 3/6 [00:02<00:02,  1.29it/s]Loading checkpoint shards:  67%|██████▋   | 4/6 [00:03<00:01,  1.35it/s]Loading checkpoint shards:  83%|████████▎ | 5/6 [00:03<00:00,  1.39it/s]Loading checkpoint shards: 100%|██████████| 6/6 [00:04<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 6/6 [00:04<00:00,  1.33it/s]
+Map:   0%|          | 0/1000 [00:00<?, ? examples/s]Map: 100%|██████████| 1000/1000 [00:01<00:00, 986.42 examples/s]Map: 100%|██████████| 1000/1000 [00:01<00:00, 976.84 examples/s]
+/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:164: UserWarning: This trainer will soon be moved to trl.experimental and is a candidate for removal. If you rely on it and want it to remain, please share your comments here: https://github.com/huggingface/trl/issues/4223. Silence this warning by setting environment variable TRL_EXPERIMENTAL_SILENCE=1.
+  warnings.warn(
+===training policy===
+  0%|          | 0/313 [00:00<?, ?it/s][2025-10-29 03:20:53,632] [INFO] [real_accelerator.py:260:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+Warning: The cache directory for DeepSpeed Triton autotune, /home/n/nknguyen/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
+[2025-10-29 03:20:57,427] [INFO] [logging.py:107:log_dist] [Rank -1] [TorchCheckpointEngine] Initialized with serialization = False
+/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:566: UserWarning: Using a non-tuple sequence for multidimensional indexing is deprecated and will be changed in pytorch 2.9; use x[tuple(seq)] instead of x[seq]. In pytorch 2.9 this will be interpreted as tensor index, x[torch.tensor(seq)], which will result either in an error or a different result (Triggered internally at /pytorch/torch/csrc/autograd/python_variable_indexing.cpp:306.)
+  rewards[[actual_start, actual_end]] += scores
+Traceback (most recent call last):
+  File "/home/n/nknguyen/fyp/prompt-tuning-connect-4/pt_c.py", line 136, in <module>
+    train_prompt_tuning()
+  File "/home/n/nknguyen/fyp/prompt-tuning-connect-4/pt_c.py", line 127, in train_prompt_tuning
+    trainer.train()
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py", line 607, in train
+    output, vpred_temp = forward(model, mb_query_responses, processing_class.pad_token_id)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/trl/trainer/utils.py", line 1011, in forward
+    return model(
+           ^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/accelerate/utils/operations.py", line 818, in forward
+    return model_forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/accelerate/utils/operations.py", line 806, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py", line 92, in forward
+    return self.policy(**kwargs), logits
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/prompt-tuning-connect-4/pt_c.py", line 59, in forward
+    result = self.__model(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/utils/generic.py", line 918, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/models/phi3/modeling_phi3.py", line 465, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/utils/generic.py", line 1064, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/models/phi3/modeling_phi3.py", line 401, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/modeling_layers.py", line 94, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/utils/generic.py", line 1023, in wrapped_forward
+    output = orig_forward(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/models/phi3/modeling_phi3.py", line 277, in forward
+    hidden_states = self.mlp(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/transformers/models/phi3/modeling_phi3.py", line 65, in forward
+    return self.down_proj(up_states)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/n/nknguyen/fyp/explore/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 176.00 MiB. GPU 0 has a total capacity of 93.09 GiB of which 130.88 MiB is free. Including non-PyTorch memory, this process has 92.95 GiB memory in use. Of the allocated memory 91.68 GiB is allocated by PyTorch, and 618.76 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  0%|          | 0/313 [00:09<?, ?it/s]
