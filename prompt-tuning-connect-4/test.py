@@ -7,6 +7,7 @@ import sys
 from connect_4 import Board, generate_game_history_with_full_columns
 from config import width
 from pt_c import ModelWrapper
+from c_dataset import get_init_prompt
 
 class LLMModel:
     def __init__(self, model: str, trust_remote_code: bool):
@@ -25,7 +26,7 @@ class LLMModel:
             model,
             **model_kwargs,
         )
-        self.model = ModelWrapper(base_model, n_prompt_tokens=100)
+        self.model = ModelWrapper(base_model, get_init_prompt(self.tokenizer))
 
         # Load the soft prompts
         self.model.soft_tokens.data = torch.load(f"{model.replace('/', '.')}.soft_prompt.pt")

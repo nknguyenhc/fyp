@@ -5,7 +5,7 @@ from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
 from accelerate import PartialState
 import gc
 
-from c_dataset import get_dataset
+from c_dataset import get_dataset, get_init_prompt
 from c_reward import CReward
 
 def prepare_dataset(dataset, tokenizer):
@@ -14,11 +14,11 @@ def prepare_dataset(dataset, tokenizer):
     return dataset.map(tokenize_function, batched=True, remove_columns=['query'])
 
 class ModelWrapper(torch.nn.Module):
-    def __init__(self, model, n_prompt_tokens: int):
+    def __init__(self, model, init_prompt_input_ids: torch.Tensor):
         super().__init__()
         self.__model = model
-        self.soft_tokens = torch.nn.Parameter(
-            torch.randn(1, n_prompt_tokens, model.config.hidden_size, dtype=model.dtype))
+        init_input_embeds = self.__model.get_input_embeddings()(init_prompt_input_ids)
+        self.soft_tokens = torch.nn.Parameter(init_input_embeds)
 
     def forward(self, *args, **kwargs):
         if "input_ids" in kwargs:
@@ -42,7 +42,7 @@ class ModelWrapper(torch.nn.Module):
             attention_mask = kwargs["attention_mask"]
             soft_attention_mask = torch.ones(
                 attention_mask.size(0),
-                self.soft_tokens.size(1),
+                self.soft_tokens.size(0),
                 device=attention_mask.device,
                 dtype=attention_mask.dtype,
             )
@@ -52,12 +52,12 @@ class ModelWrapper(torch.nn.Module):
         if "position_ids" in kwargs:
             position_ids = kwargs["position_ids"]
             soft_position_ids = torch.arange(
-                self.soft_tokens.size(1), device=position_ids.device, dtype=position_ids.dtype
+                self.soft_tokens.size(0), device=position_ids.device, dtype=position_ids.dtype
             ).unsqueeze(0).expand(position_ids.size(0), -1)
             position_ids = torch.cat([soft_position_ids, position_ids], dim=1)
             kwargs["position_ids"] = position_ids
         result = self.__model(*args, **kwargs)
-        result.logits = result.logits[:, self.soft_tokens.size(1):, :]
+        result.logits = result.logits[:, self.soft_tokens.size(0):, :]
         return result
 
     def __getattr__(self, name):
@@ -66,9 +66,7 @@ class ModelWrapper(torch.nn.Module):
         except AttributeError:
             return getattr(self.__model, name)
 
-def train_prompt_tuning(
-    n_prompt_tokens=100,
-):
+def train_prompt_tuning():
     """Train prompt tuning"""
     torch.cuda.empty_cache()
     gc.collect()
@@ -100,8 +98,8 @@ def train_prompt_tuning(
         tokenizer.pad_token = tokenizer.eos_token
     if tokenizer.chat_template is None:
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
-    model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
-    model = ModelWrapper(model, n_prompt_tokens)
+    base_model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
+    model = ModelWrapper(base_model, get_init_prompt(tokenizer))
 
     # Place the wrapper on the current process device
     accel = PartialState()
@@ -119,7 +117,7 @@ def train_prompt_tuning(
         model=model,
         reward_model=CReward(tokenizer),
         value_model=CReward(tokenizer),
-        ref_model=None,
+        ref_model=base_model,
         train_dataset=dataset,
         eval_dataset=dataset,
     )
