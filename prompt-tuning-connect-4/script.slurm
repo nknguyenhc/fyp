@@ -18,7 +18,7 @@ export TORCH_USE_CUDA_DSA=1
 python pt_c.py \
     --dataset_train_split descriptiveness \
     --response_length 2 \
-    --learning_rate 1e-7 \
+    --learning_rate 1e-6 \
     --num_ppo_epochs 1 \
     --num_mini_batches 2 \
     --per_device_train_batch_size 2 \

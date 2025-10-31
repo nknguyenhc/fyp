@@ -19,6 +19,9 @@ class ModelWrapper(torch.nn.Module):
         self.__model = model
         init_input_embeds = self.__model.get_input_embeddings()(init_prompt_input_ids)
         self.soft_tokens = torch.nn.Parameter(init_input_embeds)
+        # Freeze the base model parameters
+        for param in self.__model.parameters():
+            param.requires_grad = False
 
     def forward(self, *args, **kwargs):
         if "input_ids" in kwargs:
