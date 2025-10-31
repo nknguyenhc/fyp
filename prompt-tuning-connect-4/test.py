@@ -29,7 +29,7 @@ class LLMModel:
         self.model = ModelWrapper(base_model, get_init_prompt(self.tokenizer))
 
         # Load the soft prompts
-        self.model.soft_tokens.data = torch.load(f"{model.replace('/', '.')}.soft_prompt.pt")
+        # self.model.soft_tokens.data = torch.load(f"{model.replace('/', '.')}.soft_prompt.pt")
 
         accel = PartialState()
         device = accel.device if hasattr(accel, "device") else torch.device("cuda" if torch.cuda.is_available() else "cpu")
