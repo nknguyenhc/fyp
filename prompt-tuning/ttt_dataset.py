@@ -1,4 +1,5 @@
 from datasets import Dataset
+import torch
 
 from ult_ttt import *
 
@@ -21,6 +22,10 @@ Note that a player's move determines where the opponent can move in the next mov
 The game history is given below. Respond only with the next move by indicating the number corresponding to the cell where you want to place your mark. Do not include any explanations or additional text.
 
 """
+
+def get_init_prompt(tokenizer) -> torch.Tensor:
+    inputs = tokenizer(init_prompt, return_tensors="pt")
+    return inputs["input_ids"][0]
 
 def get_dataset(num_samples: int = 1000):
     def get_prompt(history: tuple[list[ImmutableState], list[Action]]) -> str:

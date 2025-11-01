@@ -5,6 +5,7 @@ import torch
 import sys
 
 from ult_ttt import *
+from ttt_dataset import get_init_prompt
 from script import ModelWrapper
 
 class LLMModel:
@@ -24,7 +25,7 @@ class LLMModel:
             model,
             **model_kwargs,
         )
-        self.model = ModelWrapper(base_model, n_prompt_tokens=100)
+        self.model = ModelWrapper(base_model, get_init_prompt(self.tokenizer))
 
         # Load the soft prompts
         self.model.soft_tokens.data = torch.load(f"{model.replace('/', '.')}.soft_prompt.pt")
