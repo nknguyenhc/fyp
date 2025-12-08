@@ -22,6 +22,9 @@ class ModelWrapper(torch.nn.Module):
         # Freeze the base model parameters
         for param in self.__model.parameters():
             param.requires_grad = False
+        
+        # Override model's forward method
+        self.__model.forward = self.forward
 
     def forward(self, *args, **kwargs):
         if "input_ids" in kwargs:
