@@ -24,6 +24,7 @@ class ModelWrapper(torch.nn.Module):
             param.requires_grad = False
         
         # Override model's forward method
+        self.model_forward = self.__model.forward
         self.__model.forward = self.forward
 
     def forward(self, *args, **kwargs):
@@ -62,7 +63,7 @@ class ModelWrapper(torch.nn.Module):
             ).unsqueeze(0).expand(position_ids.size(0), -1)
             position_ids = torch.cat([soft_position_ids, position_ids], dim=1)
             kwargs["position_ids"] = position_ids
-        result = self.__model(*args, **kwargs)
+        result = self.model_forward(*args, **kwargs)
         result.logits = result.logits[:, self.soft_tokens.size(0):, :]
         return result
 
