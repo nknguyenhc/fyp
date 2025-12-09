@@ -28,7 +28,7 @@ class ModelWrapper(torch.nn.Module):
         self.__model.forward = self.forward
 
     def forward(self, *args, **kwargs):
-        if "input_ids" in kwargs:
+        if kwargs.get("input_ids") is not None:
             input_ids = kwargs["input_ids"]
             batch_size = input_ids.size(0)
             inputs_embeds = self.__model.get_input_embeddings()(input_ids)
@@ -37,7 +37,7 @@ class ModelWrapper(torch.nn.Module):
             inputs_embeds = torch.cat([soft_tokens, inputs_embeds], dim=1)
             kwargs["inputs_embeds"] = inputs_embeds
             del kwargs["input_ids"]
-        elif "inputs_embeds" in kwargs:
+        elif kwargs.get("inputs_embeds") is not None:
             inputs_embeds = kwargs["inputs_embeds"]
             batch_size = inputs_embeds.size(0)
             # Ensure soft tokens are on the same device as inputs_embeds
@@ -45,7 +45,7 @@ class ModelWrapper(torch.nn.Module):
             inputs_embeds = torch.cat([soft_tokens, inputs_embeds], dim=1)
             kwargs["inputs_embeds"] = inputs_embeds
         # Extend attention mask if provided
-        if "attention_mask" in kwargs:
+        if kwargs.get("attention_mask") is not None:
             attention_mask = kwargs["attention_mask"]
             soft_attention_mask = torch.ones(
                 attention_mask.size(0),
@@ -56,14 +56,25 @@ class ModelWrapper(torch.nn.Module):
             attention_mask = torch.cat([soft_attention_mask, attention_mask], dim=1)
             kwargs["attention_mask"] = attention_mask
         # Extend position ids if provided
-        if "position_ids" in kwargs:
+        if kwargs.get("position_ids") is not None:
             position_ids = kwargs["position_ids"]
             soft_position_ids = torch.arange(
                 self.soft_tokens.size(0), device=position_ids.device, dtype=position_ids.dtype
             ).unsqueeze(0).expand(position_ids.size(0), -1)
             position_ids = torch.cat([soft_position_ids, position_ids], dim=1)
             kwargs["position_ids"] = position_ids
+        # Adjust cache_position if provided
+        if kwargs.get("cache_position") is not None:
+            cache_position = kwargs["cache_position"]
+            soft_cache_position = torch.arange(
+                self.soft_tokens.size(0), device=cache_position.device, dtype=cache_position.dtype
+            )
+            cache_position = cache_position + self.soft_tokens.size(0)
+            cache_position = torch.cat([soft_cache_position, cache_position], dim=0)
+            kwargs["cache_position"] = cache_position
         result = self.model_forward(*args, **kwargs)
+        if len(result.logits.shape) == 4:
+            result.logits = result.logits.squeeze()
         result.logits = result.logits[:, self.soft_tokens.size(0):, :]
         return result
 
