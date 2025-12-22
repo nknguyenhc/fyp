@@ -1,8 +1,9 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
 import json
+import sys
 
-MODEL = "meta-llama/Llama-3.1-8B-Instruct"
+MODEL = sys.argv[1]
 
 # First, define a tool
 def lcm(a: int, b: int) -> int:
@@ -22,6 +23,23 @@ def lcm(a: int, b: int) -> int:
 
     return abs(a * b) // gcd(a, b)
 
+def extract_tool_call_from_response(response: str):
+    """
+    Extract the tool call from the model's response.
+    JSON loads all possible substrings and returns the first valid one with "name": "something"
+    """
+    for start in range(len(response)):
+        for end in range(start + 1, len(response) + 1):
+            substring = response[start:end]
+            try:
+                data = json.loads(substring)
+                if type(data) != dict:
+                    continue
+                if "name" in data and ("arguments" in data or "parameters" in data):
+                    return data
+            except json.JSONDecodeError:
+                continue
+
 # Next, create a chat and apply the chat template
 messages = [
   {"role": "system", "content": "You are a bot that responds to queries."},
@@ -37,14 +55,17 @@ if tokenizer.chat_template is None:
 
 inputs = tokenizer.apply_chat_template(messages, tools=[lcm], add_generation_prompt=True, return_tensors="pt").to(model.device)
 
-outputs = model.generate(inputs, max_new_tokens=64)
+outputs = model.generate(inputs, max_new_tokens=128)
 response = tokenizer.decode(outputs[0][inputs.shape[1]:], skip_special_tokens=True)
 print(response)
 
 # Extract the function call and arguments from the response
-tool_call = json.loads(response)
+tool_call = extract_tool_call_from_response(response)
+if tool_call is None:
+    print("No tool call found in the response.")
+    sys.exit(1)
 function_name = tool_call["name"]
-arguments = tool_call["parameters"]
+arguments = tool_call["parameters"] if "parameters" in tool_call else tool_call["arguments"]
 
 print(f"Function to call: {function_name} with arguments {arguments}")
 if function_name == "lcm":
@@ -62,7 +83,7 @@ if function_name == "lcm":
         add_generation_prompt=True,
         return_tensors="pt"
     ).to(model.device)
-    outputs_with_tool_response = model.generate(inputs_with_tool_response, max_new_tokens=64)
+    outputs_with_tool_response = model.generate(inputs_with_tool_response, max_new_tokens=100)
     final_response = tokenizer.decode(outputs_with_tool_response[0], skip_special_tokens=True)
     print("Final response from the model:")
     print(final_response)
