@@ -1,0 +1,58 @@
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.34it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.35it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  1.97it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  1.69it/s]
+The attention mask and the pad token id were not set. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+The attention mask and the pad token id were not set. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+{"name": "lcm", "parameters": {"a": 127491203981242758992, "b": 1327812793127893129283}}
+Function to call: lcm with arguments {'a': 127491203981242758992, 'b': 1327812793127893129283}
+The least common multiple of 127491203981242758992 and 1327812793127893129283 is 169284451657571916461411789138771466762736
+Final response from the model:
+system
+
+Environment: ipython
+Cutting Knowledge Date: December 2023
+Today Date: 26 Jul 2024
+
+You are a bot that responds to queries.user
+
+Given the following functions, please respond with a JSON for a function call with its proper arguments that best answers the given prompt.
+
+Respond in the format {"name": function name, "parameters": dictionary of argument name and its value}.Do not use variables.
+
+{
+    "type": "function",
+    "function": {
+        "name": "lcm",
+        "description": "Calculate the least common multiple of two integers.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "integer",
+                    "description": "The first integer."
+                },
+                "b": {
+                    "type": "integer",
+                    "description": "The second integer."
+                }
+            },
+            "required": [
+                "a",
+                "b"
+            ]
+        },
+        "return": {
+            "type": "integer",
+            "description": "The least common multiple of the two integers."
+        }
+    }
+}
+
+What is LCM of 127491203981242758992 and 1327812793127893129283?assistant
+
+{"name": "lcm", "parameters": {"a": 127491203981242758992, "b": 1327812793127893129283}}ipython
+
+"169284451657571916461411789138771466762736"assistant
+
+The LCM of 127491203981242758992 and 1327812793127893129283 is 169284451657571916461411789138771466762736.
