@@ -1,0 +1,40 @@
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:02,  1.87it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:01<00:01,  1.86it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:01,  1.82it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:02<00:00,  2.01it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:02<00:00,  2.64it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:02<00:00,  2.25it/s]
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+<tool_call>
+{"name": "lcm", "arguments": {"a": 127491203981242758992, "b": 1327812793127893129283}}
+</tool_call>
+Function to call: lcm with arguments {'a': 127491203981242758992, 'b': 1327812793127893129283}
+The least common multiple of 127491203981242758992 and 1327812793127893129283 is 169284451657571916461411789138771466762736
+Final response from the model:
+system
+You are a bot that responds to queries.
+
+# Tools
+
+You may call one or more functions to assist with the user query.
+
+You are provided with function signatures within <tools></tools> XML tags:
+<tools>
+{"type": "function", "function": {"name": "lcm", "description": "Calculate the least common multiple of two integers.", "parameters": {"type": "object", "properties": {"a": {"type": "integer", "description": "The first integer."}, "b": {"type": "integer", "description": "The second integer."}}, "required": ["a", "b"]}, "return": {"type": "integer", "description": "The least common multiple of the two integers."}}}
+</tools>
+
+For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:
+<tool_call>
+{"name": <function-name>, "arguments": <args-json-object>}
+</tool_call>
+user
+What is LCM of 127491203981242758992 and 1327812793127893129283?
+assistant
+<tool_call>
+{"name": "lcm", "arguments": {"a": 127491203981242758992, "b": 1327812793127893129283}}
+</tool_call>
+user
+<tool_response>
+169284451657571916461411789138771466762736
+</tool_response>
+assistant
+<think>
+
+</think>
+
+The least common multiple (LCM) of 127491203981242758992 and 1327812793127893129283 is **169284451657571916461411789138771466762736**

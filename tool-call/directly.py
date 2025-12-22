@@ -53,7 +53,13 @@ model = AutoModelForCausalLM.from_pretrained(MODEL, device_map="auto")
 if tokenizer.chat_template is None:
     tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
 
-inputs = tokenizer.apply_chat_template(messages, tools=[lcm], add_generation_prompt=True, return_tensors="pt").to(model.device)
+inputs = tokenizer.apply_chat_template(
+    messages,
+    tools=[lcm],
+    add_generation_prompt=True,
+    return_tensors="pt",
+    enable_thinking=False,
+).to(model.device)
 
 outputs = model.generate(inputs, max_new_tokens=128)
 response = tokenizer.decode(outputs[0][inputs.shape[1]:], skip_special_tokens=True)
@@ -81,7 +87,8 @@ if function_name == "lcm":
         ],
         tools=[lcm],
         add_generation_prompt=True,
-        return_tensors="pt"
+        return_tensors="pt",
+        enable_thinking=False,
     ).to(model.device)
     outputs_with_tool_response = model.generate(inputs_with_tool_response, max_new_tokens=100)
     final_response = tokenizer.decode(outputs_with_tool_response[0], skip_special_tokens=True)
