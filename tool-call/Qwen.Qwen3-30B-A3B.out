@@ -1,0 +1,42 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Fetching 16 files:   0%|          | 0/16 [00:00<?, ?it/s]Fetching 16 files:   6%|▋         | 1/16 [02:23<35:55, 143.72s/it]Fetching 16 files:  31%|███▏      | 5/16 [02:29<04:08, 22.58s/it] Fetching 16 files:  50%|█████     | 8/16 [02:31<01:37, 12.19s/it]Fetching 16 files:  56%|█████▋    | 9/16 [04:06<03:13, 27.58s/it]Fetching 16 files:  75%|███████▌  | 12/16 [04:22<01:10, 17.71s/it]Fetching 16 files:  81%|████████▏ | 13/16 [04:29<00:47, 15.81s/it]Fetching 16 files: 100%|██████████| 16/16 [04:29<00:00, 16.85s/it]
+Loading checkpoint shards:   0%|          | 0/16 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▋         | 1/16 [00:07<01:54,  7.62s/it]Loading checkpoint shards:  12%|█▎        | 2/16 [00:15<01:48,  7.77s/it]Loading checkpoint shards:  19%|█▉        | 3/16 [00:23<01:41,  7.80s/it]Loading checkpoint shards:  25%|██▌       | 4/16 [00:31<01:34,  7.88s/it]Loading checkpoint shards:  31%|███▏      | 5/16 [00:39<01:26,  7.82s/it]Loading checkpoint shards:  38%|███▊      | 6/16 [00:46<01:18,  7.84s/it]Loading checkpoint shards:  44%|████▍     | 7/16 [00:54<01:10,  7.88s/it]Loading checkpoint shards:  50%|█████     | 8/16 [01:03<01:03,  7.97s/it]Loading checkpoint shards:  56%|█████▋    | 9/16 [01:11<00:55,  7.98s/it]Loading checkpoint shards:  62%|██████▎   | 10/16 [01:19<00:48,  8.06s/it]Loading checkpoint shards:  69%|██████▉   | 11/16 [01:25<00:37,  7.55s/it]Loading checkpoint shards:  75%|███████▌  | 12/16 [01:28<00:24,  6.01s/it]Loading checkpoint shards:  81%|████████▏ | 13/16 [01:30<00:14,  4.93s/it]Loading checkpoint shards:  88%|████████▊ | 14/16 [01:33<00:08,  4.22s/it]Loading checkpoint shards:  94%|█████████▍| 15/16 [01:35<00:03,  3.73s/it]Loading checkpoint shards: 100%|██████████| 16/16 [01:36<00:00,  2.70s/it]Loading checkpoint shards: 100%|██████████| 16/16 [01:36<00:00,  6.01s/it]
+Some parameters are on the meta device because they were offloaded to the cpu.
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+<tool_call>
+{"name": "lcm", "arguments": {"a": 127491203981242758992, "b": 1327812793127893129283}}
+</tool_call>
+Function to call: lcm with arguments {'a': 127491203981242758992, 'b': 1327812793127893129283}
+Final response from the model:
+system
+You are a bot that responds to queries.
+
+# Tools
+
+You may call one or more functions to assist with the user query.
+
+You are provided with function signatures within <tools></tools> XML tags:
+<tools>
+{"type": "function", "function": {"name": "lcm", "description": "Calculate the least common multiple of two integers.", "parameters": {"type": "object", "properties": {"a": {"type": "integer", "description": "The first integer."}, "b": {"type": "integer", "description": "The second integer."}}, "required": ["a", "b"]}, "return": {"type": "integer", "description": "The least common multiple of the two integers."}}}
+</tools>
+
+For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:
+<tool_call>
+{"name": <function-name>, "arguments": <args-json-object>}
+</tool_call>
+user
+What is LCM of 127491203981242758992 and 1327812793127893129283?
+assistant
+<tool_call>
+{"name": "lcm", "arguments": {"a": 127491203981242758992, "b": 1327812793127893129283}}
+</tool_call>
+user
+<tool_response>
+169284451657571916461411789138771466762736
+</tool_response>
+assistant
+<think>
+
+</think>
+
+The least common multiple (LCM) of 127491203981242758992 and 1327812793127893129283 is 169284451657571916461411789138771466762736.
