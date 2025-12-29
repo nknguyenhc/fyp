@@ -49,9 +49,9 @@ messages = [
 tokenizer = AutoTokenizer.from_pretrained(MODEL, padding_side="left")
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
-model = AutoModelForCausalLM.from_pretrained(MODEL, device_map="auto")
 if tokenizer.chat_template is None:
     tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
+model = AutoModelForCausalLM.from_pretrained(MODEL, device_map="auto", torch_dtype="auto")
 
 inputs = tokenizer.apply_chat_template(
     messages,
@@ -75,10 +75,9 @@ arguments = tool_call["parameters"] if "parameters" in tool_call else tool_call[
 
 print(f"Function to call: {function_name} with arguments {arguments}")
 if function_name == "lcm":
-    a = arguments["a"]
-    b = arguments["b"]
+    a = int(arguments["a"])
+    b = int(arguments["b"])
     result = lcm(a, b)
-    print(f"The least common multiple of {a} and {b} is {result}")
 
     inputs_with_tool_response = tokenizer.apply_chat_template(
         messages + [
