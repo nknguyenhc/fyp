@@ -60,15 +60,16 @@ class LLMModel:
         return [self._parse_response_from_history(response) for response in responses]
     
     def _parse_response_from_history(self, response: str) -> Action | None:
-        for i in range(min(len(response) - 1, 10)):
-            move_str = response[i:i+2]
-            if move_str.isdigit():
-                move_num = int(move_str) - 1
-                if not 0 <= move_num <= 80:
-                    return None
-                board = move_num // 9
-                cell = move_num % 9
-                return board // 3, board % 3, cell // 3, cell % 3
+        for i in range(min(len(response), 10)):
+            if i + 1 < len(response):
+                move_str = response[i:i+2]
+                if move_str.isdigit():
+                    move_num = int(move_str) - 1
+                    if not 0 <= move_num <= 80:
+                        return None
+                    board = move_num // 9
+                    cell = move_num % 9
+                    return board // 3, board % 3, cell // 3, cell % 3
             char = response[i]
             if char.isdigit():
                 move_num = int(char) - 1

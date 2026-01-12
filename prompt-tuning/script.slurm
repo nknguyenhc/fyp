@@ -3,9 +3,7 @@
 #SBATCH --error=result.prompt-tuning.google.gemma-2-2b-it.out
 #SBATCH --time=03:00:00
 #SBATCH --mem=64G
-#SBATCH --gres=gpu:h100-96:2
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --gres=gpu:h100-141:1
 #SBATCH --job-name=prompt-google
 
 echo "GPUs: $CUDA_VISIBLE_DEVICES"
@@ -21,7 +19,7 @@ python script.py \
     --learning_rate 1e-6 \
     --num_ppo_epochs 1 \
     --num_mini_batches 2 \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 4 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
     --torch_dtype float16 \
