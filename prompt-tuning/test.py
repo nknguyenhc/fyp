@@ -25,7 +25,7 @@ class LLMModel:
             model,
             **model_kwargs,
         )
-        self.model = ModelWrapper(base_model, get_init_prompt(self.tokenizer))
+        self.model = ModelWrapper(base_model, get_init_prompt(self.tokenizer), self.tokenizer.pad_token_id)
 
         # Load the soft prompts
         self.model.soft_tokens.data = torch.load(f"{model.replace('/', '.')}.soft_prompt.pt")

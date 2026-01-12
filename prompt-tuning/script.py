@@ -14,7 +14,7 @@ def prepare_dataset(dataset, tokenizer):
     return dataset.map(tokenize_function, batched=True, remove_columns=['query'])
 
 class ModelWrapper(torch.nn.Module):
-    def __init__(self, model, init_prompt_input_ids: torch.Tensor):
+    def __init__(self, model, init_prompt_input_ids: torch.Tensor, padding_token_id: int):
         super().__init__()
         self.__model = model
         init_input_embeds = self.__model.get_input_embeddings()(init_prompt_input_ids)
@@ -27,15 +27,24 @@ class ModelWrapper(torch.nn.Module):
         self.model_forward = self.__model.forward
         self.__model.forward = self.forward
 
+        # Pad token ID config
+        self.__padding_token_id = padding_token_id
+
     def forward(self, *args, **kwargs):
         if kwargs.get("input_ids") is not None:
             input_ids = kwargs["input_ids"]
+            num_padding_tokens = (input_ids == self.__padding_token_id).sum(dim=1)
             batch_size = input_ids.size(0)
             inputs_embeds = self.__model.get_input_embeddings()(input_ids)
             # Ensure soft tokens are on the same device as inputs_embeds
-            soft_tokens = self.soft_tokens.to(inputs_embeds.device).expand(batch_size, -1, -1)
-            inputs_embeds = torch.cat([soft_tokens, inputs_embeds], dim=1)
-            kwargs["inputs_embeds"] = inputs_embeds
+            soft_tokens = self.soft_tokens.to(inputs_embeds.device)
+            # Assuming left padding, insert the soft tokens after the padding
+            inputs_embeds_with_soft_tokens = []
+            for input_embed, n_pad in zip(inputs_embeds, num_padding_tokens):
+                inputs_embeds_with_soft_tokens.append(
+                    torch.cat([input_embed[:n_pad], soft_tokens, input_embed[n_pad:]], dim=0)
+                )
+            kwargs["inputs_embeds"] = torch.stack(inputs_embeds_with_soft_tokens, dim=0)
             del kwargs["input_ids"]
         elif kwargs.get("inputs_embeds") is not None:
             inputs_embeds = kwargs["inputs_embeds"]
@@ -117,7 +126,7 @@ def train_prompt_tuning():
     if tokenizer.chat_template is None:
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
     base_model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
-    model = ModelWrapper(base_model, get_init_prompt(tokenizer))
+    model = ModelWrapper(base_model, get_init_prompt(tokenizer), tokenizer.pad_token_id)
 
     # Place the wrapper on the current process device
     accel = PartialState()
