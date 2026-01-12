@@ -1,0 +1,4 @@
+Tool errors: 31
+Invalid format: 114
+Invalid moves: 189
+Valid moves: 166
