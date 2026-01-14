@@ -101,7 +101,7 @@ class Experiment:
         invalid_moves = 0
         valid_moves = 0
         for _ in range(num_games // batch_size):
-            game_histories: list[tuple[list[ImmutableState], list[Action]]] = [generate_game_history() for _ in range(batch_size)]
+            game_histories: list[tuple[list[ImmutableState], list[Action]]] = [generate_game_history(5) for _ in range(batch_size)]
             moves = self.model.get_moves_from_histories(game_histories)
             for game, move in zip(game_histories, moves):
                 if move is None:

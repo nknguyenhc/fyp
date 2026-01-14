@@ -163,7 +163,7 @@ def is_terminal(state: ImmutableState) -> bool:
 def clone_state(state: ImmutableState) -> ImmutableState:
     return ImmutableState(board=state.board.copy(), fill_num=state.fill_num, prev_local_action=state.prev_local_action)
 
-def generate_game_history() -> tuple[list[ImmutableState], list[Action]]:
+def generate_game_history(num_latest_moves: int = None) -> tuple[list[ImmutableState], list[Action]]:
     states: list[ImmutableState] = []
     actions: list[Action] = []
     state = ImmutableState(board=np.zeros((3, 3, 3, 3)), fill_num=1, prev_local_action=None)
@@ -174,4 +174,7 @@ def generate_game_history() -> tuple[list[ImmutableState], list[Action]]:
         actions.append(action)
         state = change_state(state, action)
         states.append(clone_state(state))
+    if num_latest_moves is not None:
+        states = states[-(num_latest_moves + 1):]
+        actions = actions[-num_latest_moves:]
     return states, actions
