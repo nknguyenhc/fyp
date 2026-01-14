@@ -45,7 +45,7 @@ class TTTReward:
             questions_and_answers = [get_board_and_answer(text) for text in decoded]
             scores = torch.tensor([get_score(prev_move, question, answer) for prev_move, question, answer in questions_and_answers],
                                   dtype=torch.float32).unsqueeze(1)
-            item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2)),
+            item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2), dtype=torch.float32),
                                  scores.repeat(1, 2)), dim=1)
             return ForwardResult(item.to(self.device))
 

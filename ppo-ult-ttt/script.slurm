@@ -1,11 +1,8 @@
 #!/bin/bash
-#SBATCH --output=result.ppo.Qwen.Qwen3-8B.out
-#SBATCH --error=result.ppo.Qwen.Qwen3-8B.out
+#SBATCH --output=result.ppo.meta-llama.Llama-3.1-8B-Instruct.out
+#SBATCH --error=result.ppo.meta-llama.Llama-3.1-8B-Instruct.out
 #SBATCH --time=03:00:00
-#SBATCH --mem=64G
-#SBATCH --gres=gpu:h100-96:2
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --gres=gpu:h200-141:1
 #SBATCH --job-name=ppo-Qwen
 
 echo "GPUs: $CUDA_VISIBLE_DEVICES"
@@ -20,15 +17,15 @@ python ttt_ppo.py \
     --response_length 2 \
     --learning_rate 3e-6 \
     --num_ppo_epochs 1 \
-    --num_mini_batches 2 \
-    --output_dir Qwen.Qwen3-8B \
-    --per_device_train_batch_size 4 \
+    --num_mini_batches 1 \
+    --output_dir meta-llama.Llama-3.1-8B-Instruct \
+    --per_device_train_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
-    --torch_dtype float16 \
     --total_episodes 5000 \
-    --model_name_or_path Qwen/Qwen3-8B \
+    --trust_remote_code True \
+    --model_name_or_path meta-llama/Llama-3.1-8B-Instruct \
     --use_peft \
-    --lora_r 16 \
-    --lora_alpha 32 \
+    --lora_r 4 \
+    --lora_alpha 8 \
     --lora_target_modules q_proj k_proj v_proj o_proj
