@@ -22,7 +22,7 @@ python ttt_ppo.py \
     --per_device_train_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
-    --total_episodes 5000 \
+    --total_episodes 10000 \
     --trust_remote_code True \
     --model_name_or_path meta-llama/Llama-3.1-8B-Instruct \
     --use_peft \
