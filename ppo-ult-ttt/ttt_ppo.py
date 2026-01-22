@@ -1,6 +1,6 @@
 from accelerate import PartialState
-from transformers import AutoTokenizer, AutoModelForCausalLM, HfArgumentParser
-from trl import PPOTrainer, ScriptArguments, PPOConfig, ModelConfig, get_kbit_device_map, get_peft_config
+from transformers import AutoTokenizer, AutoModelForCausalLM, HfArgumentParser, BitsAndBytesConfig
+from trl import PPOTrainer, ScriptArguments, PPOConfig, ModelConfig, get_peft_config
 from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
 import shutil
 import torch
@@ -28,6 +28,12 @@ def main():
         trust_remote_code=model_args.trust_remote_code,
         torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
+        quantization_config=BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type='nf4'
+        ),
     )
     tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, padding_side="left")
     if tokenizer.pad_token is None:
