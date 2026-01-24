@@ -31,18 +31,18 @@ def main():
 
     dataset = get_dataset()
     # gptq_config = GPTQConfig(bits=4, dataset=list(dataset['query']), tokenizer=tokenizer)
-    bitsandbytes_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.bfloat16,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type='nf4'
-    )
+    # bitsandbytes_config = BitsAndBytesConfig(
+    #     load_in_4bit=True,
+    #     bnb_4bit_compute_dtype=torch.bfloat16,
+    #     bnb_4bit_use_double_quant=True,
+    #     bnb_4bit_quant_type='nf4'
+    # )
     model_kwargs = dict(
         device_map="auto",
         trust_remote_code=model_args.trust_remote_code,
         torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
-        quantization_config=bitsandbytes_config,
+        # quantization_config=gptq_config,
     )
     model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
 
