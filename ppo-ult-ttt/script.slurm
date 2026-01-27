@@ -15,7 +15,7 @@ export TORCH_USE_CUDA_DSA=1
 python ttt_ppo.py \
     --dataset_train_split descriptiveness \
     --response_length 2 \
-    --learning_rate 3e-6 \
+    --learning_rate 3e-4 \
     --num_ppo_epochs 1 \
     --num_mini_batches 4 \
     --output_dir meta-llama.Llama-3.1-8B-Instruct \
