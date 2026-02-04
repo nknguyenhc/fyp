@@ -1,6 +1,6 @@
 from accelerate import PartialState
 from transformers import AutoTokenizer, AutoModelForCausalLM, HfArgumentParser
-from trl import PPOTrainer, ScriptArguments, PPOConfig, ModelConfig, get_quantization_config, get_kbit_device_map, get_peft_config
+from trl import PPOTrainer, ScriptArguments, PPOConfig, ModelConfig, get_peft_config
 from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
 import shutil
 import torch
@@ -23,26 +23,18 @@ def main():
     _, training_args, model_args = parser.parse_args_into_dataclasses()
     shutil.rmtree(training_args.output_dir, ignore_errors=True)
 
-    torch_dtype = (
-        model_args.torch_dtype if model_args.torch_dtype in ["auto", None] else getattr(torch, model_args.torch_dtype)
-    )
-    quantization_config = get_quantization_config(model_args)
-    device_map = "auto" if quantization_config is None else get_kbit_device_map()
-    model_kwargs = dict(
-        revision=model_args.model_revision,
-        attn_implementation=model_args.attn_implementation,
-        torch_dtype=torch_dtype,
-        device_map=device_map,
-        trust_remote_code=model_args.trust_remote_code,
-    )
-    if quantization_config is not None:
-        model_kwargs["quantization_config"] = quantization_config
     tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, padding_side="left")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
     if tokenizer.chat_template is None:
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
+    model_kwargs = dict(
+        device_map="auto",
+        trust_remote_code=model_args.trust_remote_code,
+        torch_dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
+    )
+    model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
 
     dataset = get_dataset()
     with PartialState().local_main_process_first():

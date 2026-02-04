@@ -58,7 +58,7 @@ class Experiment:
         invalid_moves = 0
         valid_moves = 0
         for _ in range(num_games // batch_size):
-            game_histories: list[tuple[list[Board], list[int]]] = [generate_game_history_with_full_columns() for _ in range(batch_size)]
+            game_histories: list[tuple[list[Board], list[int]]] = [generate_game_history_with_full_columns(5) for _ in range(batch_size)]
             moves = self.model.get_moves_from_histories(game_histories)
             for game, move in zip(game_histories, moves):
                 if move is None:
@@ -69,7 +69,7 @@ class Experiment:
                     continue
                 valid_moves += 1
 
-        with open(f"result.{self.model_name.replace('/', '.')}.txt", "w") as f:
+        with open(f"result.{self.model_name.replace('./', '')}.txt", "w") as f:
             f.write(f"Invalid format: {invalid_format}\n")
             f.write(f"Invalid moves: {invalid_moves}\n")
             f.write(f"Valid moves: {valid_moves}\n")

@@ -37,8 +37,8 @@ class CReward:
             decoded = self.tokenizer.batch_decode(kwargs['input_ids'], skip_special_tokens=True)
             questions_and_answers = [get_board_and_answer(text) for text in decoded]
             scores = torch.tensor([get_score(question, answer) for question, answer in questions_and_answers],
-                                  dtype=torch.float32).unsqueeze(1)
-            item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2)),
+                                  dtype=torch.bfloat16).unsqueeze(1)
+            item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2), dtype=torch.bfloat16),
                                  scores.repeat(1, 2)), dim=1)
             return ForwardResult(item.to(self.device))
 

@@ -15,6 +15,6 @@ The game history is given below. Respond only with the next move by indicating t
             prompt += f"\nMove: {move + 1}\nBoard:\n{str(board)}"
         prompt += "\nMove: "
         return prompt
-    game_histories: list[tuple[list[Board], list[int]]] = [generate_game_history_with_full_columns() for _ in range(num_samples)]
+    game_histories: list[tuple[list[Board], list[int]]] = [generate_game_history_with_full_columns(5) for _ in range(num_samples)]
     dataset: list[str] = [get_prompt(game_history) for game_history in game_histories]
     return Dataset.from_dict({"query": dataset})

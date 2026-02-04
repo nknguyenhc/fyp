@@ -303,9 +303,12 @@ def generate_game_history(min_moves: int = 3, max_moves: int = 9) -> tuple[list[
         return generate_game_history()
     return (boards, moves)
 
-def generate_game_history_with_full_columns():
+def generate_game_history_with_full_columns(num_latest_moves: int = None) -> tuple[list[Board], list[int]]:
     boards, moves = generate_game_history(9, 18)
     last_board = boards[-1]
     if all(i in last_board.actions() for i in range(width)):
-        return generate_game_history_with_full_columns()
+        return generate_game_history_with_full_columns(num_latest_moves)
+    if num_latest_moves is not None:
+        boards = boards[-(num_latest_moves + 1):]
+        moves = moves[-num_latest_moves:]
     return (boards, moves)
