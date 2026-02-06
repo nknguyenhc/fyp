@@ -1,9 +1,6 @@
 from copy import deepcopy
 from itertools import chain
 
-def manhanttan_distance(pos1, pos2):
-    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
-
 class Xiangqi():
     red_king_positions = set([(i, j) for i in range(7, 10) for j in range(3, 6)])
     black_king_positions = set([(i, j) for i in range(0, 3) for j in range(3, 6)])
@@ -278,20 +275,14 @@ class Xiangqi():
         Does not consider the constraints.
         """
         piece = self.board[original_cell[0]][original_cell[1]]
-        if piece is None or piece.turn != self.turn:
-            raise InvalidMoveException(f"{original_cell} {dest_cell}")
         move = Move(piece.__class__, original_cell, dest_cell)
-
-        possible_moves = self.actions()
-        if move not in possible_moves:
-            raise InvalidMoveException(f"{original_cell} {dest_cell}")
         return move
 
     def __str__(self):
         def condense_row(row):
             return ' '.join([str(piece) if piece else '--' for piece in row])
 
-        return '\n'.join([condense_row(row) for row in self.board]) + f'\nturn: {0 if self.turn else 1}'
+        return '\n'.join([condense_row(row) for row in self.board])
 
     def __repr__(self):
         return self.__str__()
@@ -611,17 +602,6 @@ class PawnCheckConstraint(CheckConstraint):
         return f"<P-constraint, K: {self.king_position}, P: {self.pawn_position}>"
 
 
-class MoveMode:
-    """Defines the categories of a move.
-    Each move must belong to at least 1 category.
-    """
-    UNDEFINED = 0
-    QUIET = 1
-    CAPTURE = 2
-    CHECK = 4
-    ALL = 7
-
-
 class Move:
     def __init__(self, piecetype, from_coords, to_coords):
         """Instantiates a new move object.
@@ -643,7 +623,11 @@ class Move:
             and self.to_coords == other.to_coords
 
     def __str__(self):
-        return f"{self.piecetype.to_string()} {self.from_coords} {self.to_coords}"
+        from_row, from_col = self.from_coords
+        to_row, to_col = self.to_coords
+        from_num = from_row * 9 + from_col + 1
+        to_num = to_row * 9 + to_col + 1
+        return f"{from_num}-{to_num}"
 
     def __repr__(self):
         return self.__str__()

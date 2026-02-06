@@ -3,6 +3,9 @@ from unittest import TestCase
 from xiangqi import Xiangqi, Rook, Horse, Elephant, Advisor, King, Cannon, Pawn, Move
 
 class TestXiangqi(TestCase):
+    def test_move(self):
+        move = Move(King, (8, 4), (9, 4))
+        self.assertEqual(str(move), "77-86")
 
     def test_king_move(self):
         board = Xiangqi(board=[
