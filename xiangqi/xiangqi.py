@@ -44,7 +44,6 @@ class Xiangqi():
             self.king_positions = self._find_king_positions()
         self.hash_value = None
         self.constraints = None # cached constraints
-        self.next_boards = dict() # cached next boards
 
     def _find_king_positions(self):
         king_positions = [None, None]
@@ -120,10 +119,6 @@ class Xiangqi():
                             break
                     if constraints_satisfied:
                         actions.append(action)
-        # Generate the next states as well.
-        # We know for sure that once actions are obtained, their subsequent states will also be obtained.
-        for move in actions:
-            self.next_boards[move] = self._move(move)
         return actions
 
     def _get_constraints(self):
@@ -258,7 +253,7 @@ class Xiangqi():
             return True
         return piece.turn != self.turn
 
-    def _move(self, action: "Move") -> "Xiangqi":
+    def move(self, action: "Move") -> "Xiangqi":
         """Returns a new board from application of given action on this board.
         Assuming that the action is a valid action.
         """
@@ -277,16 +272,6 @@ class Xiangqi():
         # print(f"{self.king_positions=}")
         # print(f"{next_state.king_positions=}")
         return next_state
-    
-    def move(self, action: "Move") -> "Xiangqi":
-        """Returns the next board from application of given action on this board.
-        Read from cached value.
-        """
-        if action in self.next_boards:
-            return self.next_boards[action]
-        next_board = self._move(action)
-        self.next_boards[action] = next_board
-        return next_board
 
     def parse_move(self, move_string):
         """Parses a move string into a legitimate.
