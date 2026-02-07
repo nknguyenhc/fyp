@@ -42,17 +42,18 @@ The game state is given below. Respond only with the next move in the format "or
         return prompt
 
     def _parse_response(self, xiangqi: Xiangqi, response: str) -> Move | None:
-        try:
-            original_pos_str, dest_pos_str = response.strip().split("-")
-            original_pos = int(original_pos_str) - 1
-            dest_pos = int(dest_pos_str) - 1
-            if not (0 <= original_pos < 90 and 0 <= dest_pos < 90):
-                return None
-            original_cell = (original_pos // 9, original_pos % 9)
-            dest_cell = (dest_pos // 9, dest_pos % 9)
-            return xiangqi.parse_move(original_cell, dest_cell)
-        except (ValueError, InvalidMoveException):
-            return None
+        for i in range(len(response), 1, -1):
+            try:
+                original_pos_str, dest_pos_str = response[:i].strip().split("-")
+                original_pos = int(original_pos_str) - 1
+                dest_pos = int(dest_pos_str) - 1
+                if not (0 <= original_pos < 90 and 0 <= dest_pos < 90):
+                    return None
+                original_cell = (original_pos // 9, original_pos % 9)
+                dest_cell = (dest_pos // 9, dest_pos % 9)
+                return xiangqi.parse_move(original_cell, dest_cell)
+            except (ValueError, InvalidMoveException):
+                continue
     
     def get_moves_from_boards(self, boards: list[Xiangqi]) -> list[Move | None]:
         prompts = [self._get_prompt_from_board(board) for board in boards]
