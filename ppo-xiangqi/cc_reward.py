@@ -3,6 +3,15 @@ import torch
 
 from xiangqi import Xiangqi
 
+def _find_all_moves() -> list[str]:
+    all_moves = []
+    for i in range(90):
+        for j in range(90):
+            all_moves.append(f"{i}-{j}")
+    return all_moves
+
+_all_moves = _find_all_moves()
+
 def _get_score(texts: tuple[str, str, str, str, str]) -> list[float]:
     prompt, _ = texts[4].split("Your move:", 1)
     _, board_str = prompt.rsplit("Board:\n", 1)
@@ -32,9 +41,17 @@ def _get_score(texts: tuple[str, str, str, str, str]) -> list[float]:
                 scores.append(3)
                 break
         else:
-            # KIV: may need to add "invalid format" penalty
-            scores.extend([-3] * (5 - i))
-            return scores
+            for move in _all_moves:
+                if move == response:
+                    scores.append(-3)
+                    scores.extend([0] * (4 - i))
+                    return scores
+                if move.startswith(response):
+                    scores.append(-3)
+                    break
+            else:
+                scores.extend([-9] * (5 - i))
+                return scores
     return scores
 
 class ForwardResult:
