@@ -28,7 +28,7 @@ def _get_score(text: str) -> float:
         num = int(response) - 1
         if not 0 <= num <= 89:
             return -9
-        from_col, from_row = divmod(num, 9)
+        from_row, from_col = divmod(num, 9)
         if any(move.from_coords == (from_row, from_col) for move in moves):
             return 3
         else:
