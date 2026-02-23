@@ -6,8 +6,14 @@ import shutil
 import torch
 import gc
 
-from cc_dataset import get_dataset
+from valid_start_dataset import get_valid_start_dataset
 from valid_start_reward import ValidPositionReward
+from full_dataset import get_full_dataset
+from full_reward import FullReward
+from test import Experiment
+
+# Flags
+FIRST_STEP_ONLY = False
 
 def prepare_dataset(dataset, tokenizer):
     def tokenize_function(examples):
@@ -29,7 +35,8 @@ def main():
     if tokenizer.chat_template is None:
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
 
-    dataset = get_dataset()
+    # Step 1: train on valid starts
+    dataset = get_valid_start_dataset()
     model_kwargs = dict(
         device_map="auto",
         trust_remote_code=model_args.trust_remote_code,
@@ -56,7 +63,44 @@ def main():
     trainer.train()
     trainer.save_model(training_args.output_dir)
 
-    trainer.generate_completions()
+    if FIRST_STEP_ONLY:
+        return
+
+    # Step 2: run intermediate test script
+    model_args.model_name_or_path = training_args.output_dir
+    experiment = Experiment(model_args.model_name_or_path, model_args.trust_remote_code)
+    experiment.run()
+
+    # Step 3: train on valid starts + valid moves
+    dataset = get_full_dataset()
+    model_kwargs = dict(
+        device_map="auto",
+        trust_remote_code=model_args.trust_remote_code,
+        torch_dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
+    )
+    model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
+
+    training_args.response_length = 5
+
+    with PartialState().local_main_process_first():
+        dataset = prepare_dataset(dataset, tokenizer)
+
+    peft_config = get_peft_config(model_args)
+    trainer = PPOTrainer(
+        args=training_args,
+        processing_class=tokenizer,
+        model=model,
+        reward_model=FullReward(tokenizer),
+        value_model=FullReward(tokenizer),
+        ref_model=None,
+        train_dataset=dataset,
+        eval_dataset=dataset,
+        peft_config=peft_config,
+    )
+
+    trainer.train()
+    trainer.save_model(training_args.output_dir)
 
 
 if __name__ == "__main__":
