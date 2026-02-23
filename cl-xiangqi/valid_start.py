@@ -6,6 +6,7 @@ import shutil
 import torch
 import gc
 
+from valid_start_args import ValidStartTrainingArguments
 from valid_start_dataset import get_valid_start_dataset
 from valid_start_reward import ValidPositionReward
 from full_dataset import get_full_dataset
@@ -25,8 +26,8 @@ def main():
     torch.cuda.empty_cache()
     gc.collect()
 
-    parser = HfArgumentParser((ScriptArguments, PPOConfig, ModelConfig))
-    _, training_args, model_args = parser.parse_args_into_dataclasses()
+    parser = HfArgumentParser((ScriptArguments, PPOConfig, ModelConfig, ValidStartTrainingArguments))
+    _, training_args, model_args, valid_start_args = parser.parse_args_into_dataclasses()
     shutil.rmtree(training_args.output_dir, ignore_errors=True)
 
     tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, padding_side="left")
@@ -48,6 +49,13 @@ def main():
     with PartialState().local_main_process_first():
         dataset = prepare_dataset(dataset, tokenizer)
     peft_config = get_peft_config(model_args)
+
+    # Assign training args
+    training_args.response_length = valid_start_args.response_length_1
+    training_args.learning_rate = valid_start_args.learning_rate_1
+    training_args.num_ppo_epochs = valid_start_args.num_ppo_epochs_1
+    training_args.total_episodes = valid_start_args.total_episodes_1
+
     trainer = PPOTrainer(
         args=training_args,
         processing_class=tokenizer,
@@ -81,12 +89,17 @@ def main():
     )
     model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
 
-    training_args.response_length = 5
-
     with PartialState().local_main_process_first():
         dataset = prepare_dataset(dataset, tokenizer)
 
     peft_config = get_peft_config(model_args)
+
+    # Assign training args
+    training_args.response_length = valid_start_args.response_length_2
+    training_args.learning_rate = valid_start_args.learning_rate_2
+    training_args.num_ppo_epochs = valid_start_args.num_ppo_epochs_2
+    training_args.total_episodes = valid_start_args.total_episodes_2
+
     trainer = PPOTrainer(
         args=training_args,
         processing_class=tokenizer,

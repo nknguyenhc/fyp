@@ -14,15 +14,17 @@ export TORCH_USE_CUDA_DSA=1
 
 python valid_start.py \
     --dataset_train_split descriptiveness \
-    --response_length 2 \
-    --learning_rate 5e-5 \
-    --num_ppo_epochs 1 \
+    --learning_rate_1 5e-5 \
+    --learning_rate_2 5e-5 \
+    --num_ppo_epochs_1 4 \
+    --num_ppo_epochs_2 4 \
     --num_mini_batches 4 \
     --output_dir LiquidAI.LFM2-350M \
     --per_device_train_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
-    --total_episodes 10000 \
+    --total_episodes_1 10000 \
+    --total_episodes_2 10000 \
     --trust_remote_code True \
     --model_name_or_path LiquidAI/LFM2-350M \
     --use_peft \
