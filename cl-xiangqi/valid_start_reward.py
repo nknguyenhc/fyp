@@ -41,21 +41,34 @@ class ForwardResult:
         self.hidden_states = [item]
 
 class ValidPositionReward:
-    def __init__(self, tokenizer):
+    def __init__(self, tokenizer, num_token_generated: int):
         self.base_model_prefix = 'huh'
         self.huh = self.forward
         self.tokenizer = tokenizer
         self.device = next(iter(tokenizer.model.parameters())).device if hasattr(tokenizer, 'model') else 'cuda'
+        self.num_token_generated = num_token_generated
     
     def forward(self, *args, **kwargs):
         with torch.no_grad():
-            # Assuming 2 tokens are generated, and padding is on the left
-            decoded = self.tokenizer.batch_decode(kwargs['input_ids'], skip_special_tokens=True)
+            # Get the actual input length from the input_ids
+            input_ids = kwargs['input_ids']
+            batch_size, seq_len = input_ids.shape
+            
+            # Decode and get scores
+            decoded = self.tokenizer.batch_decode(input_ids, skip_special_tokens=True)
             scores = torch.tensor([_get_score(text) for text in decoded],
-                                  dtype=torch.bfloat16).unsqueeze(1)
-            item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 2), dtype=torch.bfloat16),
-                                 scores.repeat(1, 2)), dim=1)
-            return ForwardResult(item.to(self.device))
+                                  dtype=torch.bfloat16, device=self.device)
+            
+            # Create output tensor with shape [batch_size, seq_len]
+            # Initialize all positions to 0
+            item = torch.zeros((batch_size, seq_len), dtype=torch.bfloat16, device=self.device)
+            
+            # Place the score in the last position of each sequence
+            # This represents the value/reward for completing the sequence
+            for i in range(self.num_token_generated):
+                item[:, -i-1] = scores
+            
+            return ForwardResult(item.unsqueeze(-1))
     
     def score(self, scores: torch.Tensor):
         return scores

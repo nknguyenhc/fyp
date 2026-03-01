@@ -14,7 +14,9 @@ export TORCH_USE_CUDA_DSA=1
 
 python valid_start.py \
     --dataset_train_split descriptiveness \
-    --learning_rate_1 5e-5 \
+    --response_length_1 1 \
+    --response_length_2 3 \
+    --learning_rate_1 3e-4 \
     --learning_rate_2 5e-5 \
     --num_ppo_epochs_1 4 \
     --num_ppo_epochs_2 4 \
