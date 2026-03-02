@@ -3,7 +3,7 @@
 #SBATCH --error=result.ppo.LiquidAI.LFM2-350M.out
 #SBATCH --time=03:00:00
 #SBATCH --gres=gpu:h100-96:1
-#SBATCH --job-name=ppo-Liquid
+#SBATCH --job-name=vls-Liquid
 
 echo "GPUs: $CUDA_VISIBLE_DEVICES"
 
