@@ -632,6 +632,10 @@ class Move:
     def __repr__(self):
         return self.__str__()
 
+    def from_coord_num(self):
+        from_row, from_col = self.from_coords
+        return from_row * 9 + from_col + 1
+
 
 class Piece:
     def __init__(self, turn):

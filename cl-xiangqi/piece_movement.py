@@ -7,8 +7,7 @@ import torch
 import gc
 
 from multi_step_args import MultiStepTrainingArguments
-from valid_start_dataset import get_valid_start_dataset
-from valid_start_reward import ValidPositionReward
+from piece_movement_dataset import get_piece_movement_dataset
 from full_dataset import get_full_dataset
 from full_reward import FullReward
 from test import Experiment
@@ -37,7 +36,7 @@ def main():
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
 
     # Step 1: train on valid starts
-    dataset = get_valid_start_dataset()
+    dataset = get_piece_movement_dataset()
     model_kwargs = dict(
         device_map="auto",
         trust_remote_code=model_args.trust_remote_code,
@@ -60,8 +59,8 @@ def main():
         args=training_args,
         processing_class=tokenizer,
         model=model,
-        reward_model=ValidPositionReward(tokenizer, training_args.response_length),
-        value_model=ValidPositionReward(tokenizer, training_args.response_length),
+        reward_model=FullReward(tokenizer),
+        value_model=FullReward(tokenizer),
         ref_model=None,
         train_dataset=dataset,
         eval_dataset=dataset,

@@ -1,7 +1,7 @@
 from dataclasses import field, dataclass
 
 @dataclass
-class ValidStartTrainingArguments:
+class MultiStepTrainingArguments:
     response_length_1: int = field(
         default=2,
     )
