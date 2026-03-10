@@ -42,7 +42,7 @@ The game state is given below. Respond only with the next move in the format "or
 
         moves = board.actions()
         move = random.choice(moves)
-        prompt += f"{move.from_coord_num()}-\n"
+        prompt += f"{move.from_coord_num()}-"
         return prompt
 
     def _parse_response(self, xiangqi: Xiangqi, response: str) -> Move | None:

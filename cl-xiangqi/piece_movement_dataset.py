@@ -49,7 +49,7 @@ The game state is given below. Respond only with the next move in the format "or
 """
         prompt += f"\nBoard:\n{str(board)}\n\n"
         prompt += "Your move: "
-        prompt += f"{move.from_coord_num()}-\n"
+        prompt += f"{move.from_coord_num()}-"
         prompts.append(prompt)
     return prompts
 

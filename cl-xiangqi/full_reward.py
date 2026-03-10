@@ -31,6 +31,9 @@ def _get_score(texts: tuple[str, str, str, str, str]) -> list[float]:
             scores.append(0)
             continue
         _, response = parts
+        if response == "":
+            scores.append(0)
+            continue
         response = response.lstrip(" ")
         for move in moves:
             if str(move) == response:
@@ -75,7 +78,7 @@ class FullReward:
                                   dtype=torch.bfloat16, device=self.device)
             item = torch.zeros((batch_size, seq_len), dtype=torch.bfloat16, device=self.device)
             for i in range(5):
-                item[:, seq_len - 1 - i] = scores[:, i]
+                item[:, seq_len - 5 + i] = scores[:, i]
             return ForwardResult(item.unsqueeze(-1))
     
     def score(self, scores: torch.Tensor):
