@@ -71,13 +71,13 @@ def main():
     trainer.train()
     trainer.save_model(training_args.output_dir)
 
-    if FIRST_STEP_ONLY:
-        return
-
     # Step 2: run intermediate test script
     model_args.model_name_or_path = training_args.output_dir
     experiment = Experiment(model_args.model_name_or_path, model_args.trust_remote_code)
     experiment.run()
+
+    if FIRST_STEP_ONLY:
+        return
 
     # Step 3: train on valid starts + valid moves
     dataset = get_full_dataset()

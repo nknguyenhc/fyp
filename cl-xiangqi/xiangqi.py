@@ -274,6 +274,18 @@ class Xiangqi():
         # print(f"{self.king_positions=}")
         # print(f"{next_state.king_positions=}")
         return next_state
+    
+    def has_friendly_piece(self, position: tuple[int, int]) -> bool:
+        """Checks if the position on the board contains a friendly piece.
+        """
+        piece = self.board[position[0]][position[1]]
+        return piece is not None and piece.turn == self.turn
+    
+    def has_enemy_piece(self, position: tuple[int, int]) -> bool:
+        """Checks if the position on the board contains an enemy piece.
+        """
+        piece = self.board[position[0]][position[1]]
+        return piece is not None and piece.turn != self.turn
 
     def parse_move(self, original_cell: tuple[int, int], dest_cell: tuple[int, int]) -> "Move":
         """Parses a move string into a legitimate.

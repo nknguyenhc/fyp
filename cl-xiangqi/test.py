@@ -80,6 +80,8 @@ class Experiment:
     def run(self, num_games: int = 500, batch_size: int = 10):
         invalid_format = 0
         invalid_moves = 0
+        enemy_pieces = 0
+        friendly_pieces = 0
         starting_valid_positions = 0
         valid_moves = 0
         for _ in range(num_games // batch_size):
@@ -93,12 +95,18 @@ class Experiment:
                     valid_moves += 1
                 elif any(move.from_coords == amove.from_coords for amove in allowed_moves):
                     starting_valid_positions += 1
+                elif game.has_friendly_piece(move.from_coords):
+                    friendly_pieces += 1
+                elif game.has_enemy_piece(move.from_coords):
+                    enemy_pieces += 1
                 else:
                     invalid_moves += 1
         
         with open(f"result.{self.model_name.replace('./', '').replace('/', '.')}.txt", 'w') as f:
             f.write(f"Invalid format: {invalid_format}\n")
             f.write(f"Invalid moves: {invalid_moves}\n")
+            f.write(f"Friendly pieces: {friendly_pieces}\n")
+            f.write(f"Enemy pieces: {enemy_pieces}\n")
             f.write(f"Starting valid positions: {starting_valid_positions}\n")
             f.write(f"Valid moves: {valid_moves}\n")
     
