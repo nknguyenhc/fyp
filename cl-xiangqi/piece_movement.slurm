@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --output=result.ppo.LiquidAI.LFM2-350M.out
-#SBATCH --error=result.ppo.LiquidAI.LFM2-350M.out
+#SBATCH --output=result.pm.LiquidAI.LFM2-350M.out
+#SBATCH --error=result.pm.LiquidAI.LFM2-350M.out
 #SBATCH --time=03:00:00
 #SBATCH --gres=gpu:h100-96:1
 #SBATCH --job-name=pm-Liquid
@@ -21,7 +21,7 @@ python piece_movement.py \
     --num_ppo_epochs_1 1 \
     --num_ppo_epochs_2 1 \
     --num_mini_batches 4 \
-    --output_dir LiquidAI.LFM2-350M \
+    --output_dir pm.LiquidAI.LFM2-350M \
     --per_device_train_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
