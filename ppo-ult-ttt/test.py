@@ -39,12 +39,12 @@ The game history is given below. Respond only with the next move by indicating t
 
     def get_moves_from_histories(self, histories: list[tuple[list[ImmutableState], list[Action]]]) -> list[Action | None]:
         prompts = [self._get_prompt_from_history(history) for history in histories]
-        for i, prompt in enumerate(prompts):
-            print(f"Prompt {i}: {prompt}", flush=True)
         results = self.pipe(prompts, max_new_tokens=2, do_sample=True, temperature=0.3)
         responses = [result[0]['generated_text'][len(prompt):] for result, prompt in zip(results, prompts)]
-        for i, response in enumerate(responses):
-            print(f"Response {i}: {response}", flush=True)
+        for prompt, response in zip(prompts, responses):
+            print(f"Prompt: {prompt}", flush=True)
+            print(f"Response: {response}", flush=True)
+            print("------", flush=True)
         return [self._parse_response_from_history(response) for response in responses]
     
     def _parse_response_from_history(self, response: str) -> Action | None:

@@ -13,7 +13,8 @@ from full_reward import FullReward
 from piece_movement_test import Experiment
 
 # Flags
-FIRST_STEP_ONLY = False
+FIRST_STEP = False
+SECOND_STEP = True
 
 def prepare_dataset(dataset, tokenizer):
     def tokenize_function(examples):
@@ -21,20 +22,7 @@ def prepare_dataset(dataset, tokenizer):
 
     return dataset.map(tokenize_function, batched=True, remove_columns=['query'])
 
-def main():
-    torch.cuda.empty_cache()
-    gc.collect()
-
-    parser = HfArgumentParser((ScriptArguments, PPOConfig, ModelConfig, MultiStepTrainingArguments))
-    _, training_args, model_args, multi_step_args = parser.parse_args_into_dataclasses()
-    shutil.rmtree(training_args.output_dir, ignore_errors=True)
-
-    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, padding_side="left")
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-    if tokenizer.chat_template is None:
-        tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
-
+def first_step(tokenizer, training_args, model_args, multi_step_args):
     # Step 1: train on valid starts
     dataset = get_piece_movement_dataset()
     model_kwargs = dict(
@@ -75,9 +63,7 @@ def main():
     experiment = Experiment(model_args.model_name_or_path, model_args.trust_remote_code)
     experiment.run()
 
-    if FIRST_STEP_ONLY:
-        return
-
+def second_step(tokenizer, training_args, model_args, multi_step_args):
     # Step 3: train on valid starts + valid moves
     dataset = get_full_dataset()
     model_kwargs = dict(
@@ -113,6 +99,30 @@ def main():
 
     trainer.train()
     trainer.save_model(training_args.output_dir)
+
+    # Step 4: run intermediate test script
+    model_args.model_name_or_path = training_args.output_dir
+    experiment = Experiment(model_args.model_name_or_path, model_args.trust_remote_code)
+    experiment.run()
+
+def main():
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    parser = HfArgumentParser((ScriptArguments, PPOConfig, ModelConfig, MultiStepTrainingArguments))
+    _, training_args, model_args, multi_step_args = parser.parse_args_into_dataclasses()
+    shutil.rmtree(training_args.output_dir, ignore_errors=True)
+
+    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, padding_side="left")
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    if tokenizer.chat_template is None:
+        tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
+
+    if FIRST_STEP:
+        first_step(tokenizer, training_args, model_args, multi_step_args)
+    if SECOND_STEP:
+        second_step(tokenizer, training_args, model_args, multi_step_args)
 
 
 if __name__ == "__main__":
