@@ -11,6 +11,7 @@ from piece_movement_dataset import get_piece_movement_dataset
 from full_dataset import get_full_dataset
 from full_reward import FullReward
 from piece_movement_test import Experiment
+from test import Experiment as MainExperiment
 
 # Flags
 FIRST_STEP = False
@@ -102,7 +103,7 @@ def second_step(tokenizer, training_args, model_args, multi_step_args):
 
     # Step 4: run intermediate test script
     model_args.model_name_or_path = training_args.output_dir
-    experiment = Experiment(model_args.model_name_or_path, model_args.trust_remote_code)
+    experiment = MainExperiment(model_args.model_name_or_path, model_args.trust_remote_code)
     experiment.run()
 
 def main():
