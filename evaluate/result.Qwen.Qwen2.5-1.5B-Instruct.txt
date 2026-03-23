@@ -1,0 +1,5 @@
+Avg increase: NaN
+Increase count: 0
+Avg decrease: -0.090
+Decrease count: 47
+Overall average: -0.027
