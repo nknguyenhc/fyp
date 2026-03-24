@@ -46,8 +46,8 @@ def main():
     match cl_args.step:
         case "vls":
             dataset = get_valid_start_dataset()
-            reward_model = ValidPositionReward(tokenizer)
-            value_model = ValidPositionReward(tokenizer)
+            reward_model = ValidPositionReward(tokenizer, training_args.response_length)
+            value_model = ValidPositionReward(tokenizer, training_args.response_length)
         case "pm":
             dataset = get_piece_movement_dataset()
             reward_model = FullReward(tokenizer)
