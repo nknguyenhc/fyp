@@ -13,7 +13,7 @@ from piece_movement_dataset import get_piece_movement_dataset
 from full_dataset import get_full_dataset
 from full_reward import FullReward
 from piece_movement_test import Experiment as PMExperiment
-from test import Experiment
+from main_test import Experiment
 
 def prepare_dataset(dataset, tokenizer):
     def tokenize_function(examples):
