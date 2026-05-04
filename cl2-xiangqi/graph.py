@@ -30,15 +30,17 @@ def main():
 
     for ax, y, title in zip(axes, y_values, titles):
         # Increase font size of x and y labels
-        ax.tick_params(axis='x', labelsize=12)
-        ax.tick_params(axis='y', labelsize=12)
+        ax.tick_params(axis='x', labelsize=18)
+        ax.tick_params(axis='y', labelsize=18)
         ax.plot(x, y, marker="o", linewidth=2)
         ax.set_title(title, fontsize=16)
-        ax.set_xlabel("Stage", fontsize=12)
-        ax.set_ylabel("Percentage (%)", fontsize=12)
+        ax.set_xlabel("Stage", fontsize=18)
+        ax.set_ylabel("% moves with valid start", fontsize=18)
         # y range: 0 to 100
         ax.set_ylim(0, 100)
         ax.grid(True, linestyle="--", alpha=0.4)
+        ax.set_xticks(range(len(x)))
+        ax.set_xticklabels(x, rotation=45, ha='right', rotation_mode="anchor")
 
     plt.tight_layout()
     plt.savefig(fig_name, dpi=300, bbox_inches="tight")
