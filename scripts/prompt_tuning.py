@@ -5,8 +5,11 @@ from trl.trainer.utils import SIMPLE_CHAT_TEMPLATE
 from accelerate import PartialState
 import gc
 
-from ttt_dataset import get_dataset, get_init_prompt
-from ttt_reward import TTTReward
+from fine_tuning.ult_ttt_prompt_tuning_dataset import get_ult_ttt_dataset, get_ult_ttt_init_prompt
+from fine_tuning.ult_ttt_reward import TTTReward
+from fine_tuning.c_prompt_tuning_dataset import get_connect_4_dataset, get_connect_4_init_prompt
+from fine_tuning.c_reward import CReward
+from scripts.args import GeneralArguments
 
 def prepare_dataset(dataset, tokenizer):
     def tokenize_function(examples):
@@ -98,8 +101,8 @@ def train_prompt_tuning():
     torch.cuda.empty_cache()
     gc.collect()
 
-    parser = HfArgumentParser((ScriptArguments, PPOConfig, ModelConfig))
-    _, training_args, model_args = parser.parse_args_into_dataclasses()
+    parser = HfArgumentParser((ScriptArguments, PPOConfig, ModelConfig, GeneralArguments))
+    _, training_args, model_args, general_args = parser.parse_args_into_dataclasses()
 
     torch_dtype = (
         model_args.torch_dtype if model_args.torch_dtype in ["auto", None] else getattr(torch, model_args.torch_dtype)
@@ -125,6 +128,21 @@ def train_prompt_tuning():
         tokenizer.pad_token = tokenizer.eos_token
     if tokenizer.chat_template is None:
         tokenizer.chat_template = SIMPLE_CHAT_TEMPLATE
+    
+    match general_args.game:
+        case "ult-ttt":
+            get_init_prompt = get_ult_ttt_init_prompt
+            dataset = get_ult_ttt_dataset()
+            reward_model = TTTReward(tokenizer)
+            value_model = TTTReward(tokenizer)
+        case "connect-4":
+            get_init_prompt = get_connect_4_init_prompt
+            dataset = get_connect_4_dataset()
+            reward_model = CReward(tokenizer)
+            value_model = CReward(tokenizer)
+        case _:
+            raise ValueError(f"Unsupported game: {general_args.game}")
+
     base_model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
     model = ModelWrapper(base_model, get_init_prompt(tokenizer), tokenizer.pad_token_id)
 
@@ -134,7 +152,6 @@ def train_prompt_tuning():
     model = model.to(device)
 
     # Prepare dataset
-    dataset = get_dataset()
     with PartialState().local_main_process_first():
         dataset = prepare_dataset(dataset, tokenizer)
     
@@ -142,8 +159,8 @@ def train_prompt_tuning():
         args=training_args,
         processing_class=tokenizer,
         model=model,
-        reward_model=TTTReward(tokenizer),
-        value_model=TTTReward(tokenizer),
+        reward_model=reward_model,
+        value_model=value_model,
         ref_model=base_model,
         train_dataset=dataset,
         eval_dataset=dataset,

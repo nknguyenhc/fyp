@@ -14,6 +14,7 @@ export TOKENIZERS_PARALLELISM=false
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
 python scripts/test.py \
+    --mode ppo \
     --model_name_or_path google/gemma-2-2b-it \
     --trust_remote_code True \
     --game ult-ttt

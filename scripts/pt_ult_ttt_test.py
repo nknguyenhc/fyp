@@ -4,9 +4,9 @@ from accelerate import PartialState
 import torch
 import sys
 
-from ult_ttt import *
-from ttt_dataset import get_init_prompt
-from script import ModelWrapper
+from games.ult_ttt import *
+from fine_tuning.ult_ttt_prompt_tuning_dataset import get_ult_ttt_init_prompt
+from scripts.prompt_tuning import ModelWrapper
 
 class LLMModel:
     def __init__(self, model: str, trust_remote_code: bool):
@@ -25,7 +25,7 @@ class LLMModel:
             model,
             **model_kwargs,
         )
-        self.model = ModelWrapper(base_model, get_init_prompt(self.tokenizer), self.tokenizer.pad_token_id)
+        self.model = ModelWrapper(base_model, get_ult_ttt_init_prompt(self.tokenizer), self.tokenizer.pad_token_id)
 
         # Load the soft prompts
         self.model.soft_tokens.data = torch.load(f"{model.replace('/', '.')}.soft_prompt.pt")

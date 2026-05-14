@@ -5,6 +5,9 @@ class GeneralArguments:
     game: str = field(
         default="ult-ttt",
     )
+    mode: str = field(
+        default="ppo",
+    )
 
 @dataclass
 class CLTrainingArguments:

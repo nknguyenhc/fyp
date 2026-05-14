@@ -1,7 +1,7 @@
 from datasets import Dataset
 import torch
 
-from ult_ttt import *
+from games.ult_ttt import *
 
 init_prompt = """You are an expert at playing ultimate tictactoe. The board is 9x9 consisting of 3x3 smaller subboards where each cell can be empty (-), contain an X, or contain an O. To indicate a move, Use the corresponding number for the cell where you want to place your mark:
 
@@ -23,11 +23,11 @@ The game history is given below. Respond only with the next move by indicating t
 
 """
 
-def get_init_prompt(tokenizer) -> torch.Tensor:
+def get_ult_ttt_init_prompt(tokenizer) -> torch.Tensor:
     inputs = tokenizer(init_prompt, return_tensors="pt")
     return inputs["input_ids"][0]
 
-def get_dataset(num_samples: int = 1000):
+def get_ult_ttt_dataset(num_samples: int = 1000):
     def get_prompt(history: tuple[list[ImmutableState], list[Action]]) -> str:
         boards, moves = history
         prompt = f"Board:\n{convert_board_to_string(boards[0].board)}"
@@ -37,6 +37,6 @@ def get_dataset(num_samples: int = 1000):
         prompt += "\nMove: "
         return prompt
 
-    game_histories: list[tuple[list[ImmutableState], list[Action]]] = [generate_game_history() for _ in range(num_samples)]
+    game_histories: list[tuple[list[ImmutableState], list[Action]]] = [generate_game_history(5) for _ in range(num_samples)]
     dataset: list[str] = [get_prompt(game_history) for game_history in game_histories]
     return Dataset.from_dict({"query": dataset})
