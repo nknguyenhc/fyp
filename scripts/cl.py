@@ -6,14 +6,14 @@ import shutil
 import torch
 import gc
 
-from args import CLTrainingArguments
-from valid_start_dataset import get_valid_start_dataset
-from valid_start_reward import ValidPositionReward
-from piece_movement_dataset import get_piece_movement_dataset
-from full_dataset import get_full_dataset
-from full_reward import FullReward
-from piece_movement_test import Experiment as PMExperiment
-from main_test import Experiment
+from scripts.args import CLTrainingArguments
+from scripts.xiangqi.piece_movement_test import Experiment as PMExperiment
+from scripts.xiangqi.main_test import Experiment
+from fine_tuning.cc_valid_start_dataset import get_valid_start_dataset
+from fine_tuning.cc_valid_start_reward import ValidPositionReward
+from fine_tuning.cc_piece_movement_dataset import get_piece_movement_dataset
+from fine_tuning.cc_dataset import get_cc_dataset
+from fine_tuning.cc_reward import CCReward
 
 def prepare_dataset(dataset, tokenizer):
     def tokenize_function(examples):
@@ -50,12 +50,12 @@ def main():
             value_model = ValidPositionReward(tokenizer, training_args.response_length)
         case "pm":
             dataset = get_piece_movement_dataset()
-            reward_model = FullReward(tokenizer)
-            value_model = FullReward(tokenizer)
+            reward_model = CCReward(tokenizer)
+            value_model = CCReward(tokenizer)
         case "final":
-            dataset = get_full_dataset()
-            reward_model = FullReward(tokenizer)
-            value_model = FullReward(tokenizer)
+            dataset = get_cc_dataset()
+            reward_model = CCReward(tokenizer)
+            value_model = CCReward(tokenizer)
         case _:
             raise ValueError(f"Invalid step: {cl_args.step}")
     

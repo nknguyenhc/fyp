@@ -41,7 +41,7 @@ The pieces are represented as follows:
 
 The red pieces are initially at the bottom half of the board, while the black pieces are initially at the top half of the board. The goal of the game is to checkmate the opponent's king, while protecting your own king. You are currently playing as {"Red" if board.turn else "Black"}.
 
-The game state is given below. Respond only with the next move in the format "original_position-destination_position" (eg: 12-21), where original_position and destination_position are the numbers corresponding to the cells on the board. Do not include any explanations or additional text.
+The game state is given below. Respond only with the next move in the format "original_position-destination_position" (eg: 12-21), where original_position corresponds to a piece that can be moved, and destination_position corresponds to the final position of the piece. Do not include any explanations or additional text.
 """
     prompt += f"\nBoard:\n{str(board)}\n\n"
     prompt += "Your move: "

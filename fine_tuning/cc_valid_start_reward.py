@@ -1,7 +1,7 @@
 import re
 import torch
 
-from xiangqi import Xiangqi
+from games.xiangqi import Xiangqi
 
 def _find_all_moves() -> list[str]:
     all_moves = []

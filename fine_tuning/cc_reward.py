@@ -31,6 +31,9 @@ def _get_score(texts: tuple[str, str, str, str, str]) -> list[float]:
             scores.append(0)
             continue
         _, response = parts
+        if response == "":
+            scores.append(0)
+            continue
         response = response.lstrip(" ")
         for move in moves:
             if str(move) == response:
@@ -67,13 +70,16 @@ class CCReward:
     
     def forward(self, *args, **kwargs):
         with torch.no_grad():
-            # Assuming 5 tokens are generated, and padding is on the left
-            decoded = [self.tokenizer.batch_decode(kwargs['input_ids'][:, :kwargs['input_ids'].shape[1] - i], skip_special_tokens=True) for i in range(4, -1, -1)]
+            input_ids = kwargs['input_ids']
+            batch_size, seq_len = input_ids.shape
+
+            decoded = [self.tokenizer.batch_decode(input_ids[:, :seq_len - i], skip_special_tokens=True) for i in range(4, -1, -1)]
             scores = torch.tensor([_get_score(texts) for texts in zip(*decoded)],
-                                  dtype=torch.bfloat16)
-            item = torch.concat((torch.zeros((scores.shape[0], kwargs['input_ids'].shape[1] - 5), dtype=torch.bfloat16),
-                                 scores), dim=1)
-            return ForwardResult(item.to(self.device))
+                                  dtype=torch.bfloat16, device=self.device)
+            item = torch.zeros((batch_size, seq_len), dtype=torch.bfloat16, device=self.device)
+            for i in range(5):
+                item[:, seq_len - 5 + i] = scores[:, i]
+            return ForwardResult(item.unsqueeze(-1))
     
     def score(self, scores: torch.Tensor):
         return scores

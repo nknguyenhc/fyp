@@ -1,7 +1,7 @@
 from datasets import Dataset
 import random
 
-from xiangqi import Xiangqi
+from games.xiangqi import Xiangqi
 
 def _generate_game() -> Xiangqi:
     num_moves = random.randint(10, 30)
