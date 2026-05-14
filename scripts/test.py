@@ -1,6 +1,7 @@
 from transformers import HfArgumentParser
 from trl import ModelConfig
 
+from scripts.ttt_test import Experiment as TTTExperiment
 from scripts.ult_ttt_test import Experiment as UltTTTExperiment
 from scripts.pt_ult_ttt_test import Experiment as PTUltTTTExperiment
 from scripts.connect_4_test import Experiment as CExperiment
@@ -13,6 +14,8 @@ def main():
     parser = HfArgumentParser((ModelConfig, GeneralArguments, CLTrainingArguments))
     model_args, general_args, cl_args = parser.parse_args_into_dataclasses()
     match general_args.game:
+        case "ttt":
+            experiment = TTTExperiment(model_args.model_name_or_path)
         case "ult-ttt":
             match general_args.mode:
                 case "ppo":
