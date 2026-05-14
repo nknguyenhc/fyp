@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from itertools import chain
 
@@ -5,7 +7,10 @@ class Xiangqi():
     red_king_positions = set([(i, j) for i in range(7, 10) for j in range(3, 6)])
     black_king_positions = set([(i, j) for i in range(0, 3) for j in range(3, 6)])
 
-    def __init__(self, board=None, turn=True, king_positions=None, copy=True):
+    def __init__(self, board: list[list["Piece" | None]] = None,
+                 turn: bool = True,
+                 king_positions: tuple[tuple[int, int], tuple[int, int]] = None,
+                 copy: bool = True):
         """Instantiates a new board.
         Board is either not given, which means a default board,
         or an array of 10x9, each element is either None or an instance of Piece class.
@@ -40,9 +45,9 @@ class Xiangqi():
         else:
             self.king_positions = self._find_king_positions()
         self.hash_value = None
-        self.constraints = None # cached constraints
+        self.constraints: list[CheckConstraint] | None = None # cached constraints
 
-    def _find_king_positions(self):
+    def _find_king_positions(self) -> tuple[tuple[int, int], tuple[int, int]]:
         king_positions = [None, None]
         for i in range(10):
             for j in range(9):
@@ -54,11 +59,11 @@ class Xiangqi():
                     king_positions[1] = (i, j)
         return king_positions
 
-    def from_string(board_string, *args, **kwargs):
+    def from_string(board_string: str, *args, **kwargs) -> "Xiangqi":
         """Given a string representation of the board,
         returns the corresponding board.
         """
-        def read_piece(piece_string):
+        def read_piece(piece_string) -> "Piece" | None:
             if piece_string == '--':
                 return None
 
@@ -99,10 +104,10 @@ class Xiangqi():
             raise InvalidBoardException()
         return Xiangqi(board=board, *args, **kwargs)
 
-    def actions(self):
+    def actions(self) -> list["Move"]:
         """Returns a list of actions available at this state.
         """
-        actions = []
+        actions: list[Move] = []
         constraints = self._get_constraints()
         for i, row in enumerate(self.board):
             for j, piece in enumerate(row):
@@ -269,6 +274,18 @@ class Xiangqi():
         # print(f"{self.king_positions=}")
         # print(f"{next_state.king_positions=}")
         return next_state
+    
+    def has_friendly_piece(self, position: tuple[int, int]) -> bool:
+        """Checks if the position on the board contains a friendly piece.
+        """
+        piece = self.board[position[0]][position[1]]
+        return piece is not None and piece.turn == self.turn
+    
+    def has_enemy_piece(self, position: tuple[int, int]) -> bool:
+        """Checks if the position on the board contains an enemy piece.
+        """
+        piece = self.board[position[0]][position[1]]
+        return piece is not None and piece.turn != self.turn
 
     def parse_move(self, original_cell: tuple[int, int], dest_cell: tuple[int, int]) -> "Move":
         """Parses a move string into a legitimate.
@@ -310,11 +327,6 @@ class Xiangqi():
 class InvalidBoardException(Exception):
     def __init__(self):
         super().__init__("The content of the given file does not represent a true board.")
-
-
-class InvalidMoveException(Exception):
-    def __init__(self, move_string):
-        super().__init__(f"Invalid move string: \"{move_string}\" is not a valid move")
 
 
 class CheckConstraint:
@@ -603,7 +615,7 @@ class PawnCheckConstraint(CheckConstraint):
 
 
 class Move:
-    def __init__(self, piecetype, from_coords, to_coords):
+    def __init__(self, piecetype: type, from_coords: tuple[int, int], to_coords: tuple[int, int]):
         """Instantiates a new move object.
         piecetype is the class associated with the piece.
         from_coords is a tuple of two numbers representing the starting position of the piece (array indices)
@@ -632,6 +644,10 @@ class Move:
     def __repr__(self):
         return self.__str__()
 
+    def from_coord_num(self):
+        from_row, from_col = self.from_coords
+        return from_row * 9 + from_col + 1
+
 
 class Piece:
     def __init__(self, turn):
@@ -641,7 +657,7 @@ class Piece:
         """
         self.turn = turn
 
-    def actions(self, xiangqi, position) -> list[Move]:
+    def actions(self, xiangqi: Xiangqi, position: tuple[int, int]) -> list[Move]:
         """Returns the list of actions possible for this piece,
         given the state and its current position on the board.
         Assuming that the position given is a valid board position of this piece.

@@ -1,8 +1,7 @@
 from transformers import pipeline
-import sys
 import random
 
-from xiangqi import Xiangqi, Move, InvalidMoveException
+from games.xiangqi import Xiangqi, Move
 
 class LLMModel:
     def __init__(self, model_name: str, trust_remote_code: bool):
@@ -35,10 +34,14 @@ The pieces are represented as follows:
 
 The red pieces are initially at the bottom half of the board, while the black pieces are initially at the top half of the board. The goal of the game is to checkmate the opponent's king, while protecting your own king. You are currently playing as {"Red" if board.turn else "Black"}.
 
-The game state is given below. Respond only with the next move in the format "original_position-destination_position" (eg: 12-21), where original_position and destination_position are the numbers corresponding to the cells on the board. Do not include any explanations or additional text.
+The game state is given below. Respond only with the next move in the format "original_position-destination_position" (eg: 12-21), where original_position corresponds to a piece that can be moved, and destination_position corresponds to the final position of the piece. Do not include any explanations or additional text.
 """
         prompt += f"\nBoard:\n{str(board)}\n\n"
         prompt += "Your move: "
+
+        moves = board.actions()
+        move = random.choice(moves)
+        prompt += f"{move.from_coord_num()}-"
         return prompt
 
     def _parse_response(self, xiangqi: Xiangqi, response: str) -> Move | None:
@@ -52,15 +55,22 @@ The game state is given below. Respond only with the next move in the format "or
                 original_cell = (original_pos // 9, original_pos % 9)
                 dest_cell = (dest_pos // 9, dest_pos % 9)
                 return xiangqi.parse_move(original_cell, dest_cell)
-            except (ValueError, InvalidMoveException):
-                continue
+            except ValueError:
+                try:
+                    original_pos = int(response[:i].strip()) - 1
+                    if not (0 <= original_pos < 90):
+                        return None
+                    original_cell = (original_pos // 9, original_pos % 9)
+                    return xiangqi.parse_move(original_cell, None)
+                except ValueError:
+                    continue
     
     def get_moves_from_boards(self, boards: list[Xiangqi]) -> list[Move | None]:
         prompts = [self._get_prompt_from_board(board) for board in boards]
         for i, prompt in enumerate(prompts):
             print(f"Prompt {i+1}:\n{prompt}", flush=True)
         results = self.pipe(prompts, max_new_tokens=5)
-        responses = [result[0]['generated_text'][len(prompt):] for result, prompt in zip(results, prompts)]
+        responses = [result[0]['generated_text'].split("Your move: ")[1] for result, prompt in zip(results, prompts)]
         for i, response in enumerate(responses):
             print(f"Response {i+1}:\n{response}", flush=True)
         return [self._parse_response(board, response) for board, response in zip(boards, responses)]
@@ -70,24 +80,27 @@ class Experiment:
         self.model = LLMModel(model_name, trust_remote_code)
         self.model_name = model_name
     
-    def run(self, num_games: int = 500, batch_size: int = 10):
+    def run(self, prefix: str, num_games: int = 500, batch_size: int = 10):
         invalid_format = 0
-        invalid_moves = 0
+        starting_valid_positions = 0
         valid_moves = 0
         for _ in range(num_games // batch_size):
             games = [self._generate_games() for _ in range(batch_size)]
             moves = self.model.get_moves_from_boards([game for game in games])
             for game, move in zip(games, moves):
+                allowed_moves = game.actions()
                 if move is None:
                     invalid_format += 1
-                elif move not in game.actions():
-                    invalid_moves += 1
-                else:
+                elif move in allowed_moves:
                     valid_moves += 1
+                elif any(move.from_coords == amove.from_coords for amove in allowed_moves):
+                    starting_valid_positions += 1
+                else:
+                    raise ValueError(f"Invalid move generated: {move} for board:\n{game}")
         
-        with open(f"result.{self.model_name.replace('./', '')}.txt", 'w') as f:
+        with open(f"result.{prefix}.{self.model_name.replace('./', '').replace('/', '.')}.txt", 'w') as f:
             f.write(f"Invalid format: {invalid_format}\n")
-            f.write(f"Invalid moves: {invalid_moves}\n")
+            f.write(f"Starting valid positions: {starting_valid_positions}\n")
             f.write(f"Valid moves: {valid_moves}\n")
     
     def _generate_games(self) -> Xiangqi:
@@ -102,9 +115,3 @@ class Experiment:
         if len(board.actions()) == 0:
             return self._generate_games()
         return board
-
-if __name__ == "__main__":
-    model_name = sys.argv[1]
-    trust_remote_code = sys.argv[2].lower() == 'true'
-    experiment = Experiment(model_name, trust_remote_code)
-    experiment.run()

@@ -10,6 +10,8 @@ from fine_tuning.ult_ttt_dataset import get_ttt_dataset
 from fine_tuning.ult_ttt_reward import TTTReward
 from fine_tuning.c_dataset import get_c_dataset
 from fine_tuning.c_reward import CReward
+from fine_tuning.cc_dataset import get_cc_dataset
+from fine_tuning.cc_reward import CCReward
 from scripts.args import GeneralArguments
 
 def prepare_dataset(dataset, tokenizer):
@@ -40,16 +42,21 @@ def main():
     )
     model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, **model_kwargs)
 
-    if general_args.game == "ult-ttt":
-        dataset = get_ttt_dataset()
-        reward_model = TTTReward(tokenizer)
-        value_model = TTTReward(tokenizer)
-    elif general_args.game == "connect-4":
-        dataset = get_c_dataset()
-        reward_model = CReward(tokenizer)
-        value_model = CReward(tokenizer)
-    else:
-        raise ValueError(f"Unsupported game: {general_args.game}")
+    match general_args.game:
+        case "ult-ttt":
+            dataset = get_ttt_dataset()
+            reward_model = TTTReward(tokenizer)
+            value_model = TTTReward(tokenizer)
+        case "connect-4":
+            dataset = get_c_dataset()
+            reward_model = CReward(tokenizer)
+            value_model = CReward(tokenizer)
+        case "xiangqi":
+            dataset = get_cc_dataset()
+            reward_model = CCReward(tokenizer)
+            value_model = CCReward(tokenizer)
+        case _:
+            raise ValueError(f"Unsupported game: {general_args.game}")
 
     with PartialState().local_main_process_first():
         dataset = prepare_dataset(dataset, tokenizer)

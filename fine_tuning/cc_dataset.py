@@ -1,7 +1,7 @@
 from datasets import Dataset
 import random
 
-from xiangqi import Xiangqi
+from games.xiangqi import Xiangqi
 
 def _generate_game() -> Xiangqi:
     num_moves = random.randint(10, 30)
@@ -47,7 +47,7 @@ The game state is given below. Respond only with the next move in the format "or
     prompt += "Your move: "
     return prompt
 
-def get_dataset(num_samples: int = 1000):
+def get_cc_dataset(num_samples: int = 1000):
     games: list[Xiangqi] = [_generate_game() for _ in range(num_samples)]
     dataset: list[str] = [_get_prompt(game) for game in games]
     return Dataset.from_dict({"query": dataset})

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xiangqi import Xiangqi, Rook, Horse, Elephant, Advisor, King, Cannon, Pawn, Move
+from .xiangqi import Xiangqi, Rook, Horse, Elephant, Advisor, King, Cannon, Pawn, Move
 
 class TestXiangqi(TestCase):
     def test_move(self):
