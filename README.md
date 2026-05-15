@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 Script entry points are in [`scripts/`](#scripts) folder.
 
-## evaluate
+## [evaluate](./evaluate/)
 
 This is the experiment on the quality of LLM outputs. The experiment is used to evaluate how far the quality of outputs changes after the LLM is fine-tuned to follow rules. Note that this experiment is only run on the game of ultimate tic-tac-toe.
 
@@ -37,7 +37,7 @@ sbatch evaluate.slurm
 
 The result of evaluation is then stored in `result.{model name}.txt`, e.g. `result.LiquidAI.LFM2-350M.txt`.
 
-## fine_tuning
+## [fine_tuning](./fine_tuning/)
 
 This folder contains critical components of fine-tuning processes (PPO/prompt tuning/curriculum learning)
 
@@ -53,7 +53,7 @@ This folder contains critical components of fine-tuning processes (PPO/prompt tu
 - [`ult_ttt_prompt_tuning_dataset.py`](./fine_tuning/ult_ttt_prompt_tuning_dataset.py): dataset for ultimate tic-tac-toe game, for prompt tuning
 - [`ult_ttt_reward.py`](./fine_tuning/ult_ttt_reward.py): reward model for ultimate tic-tac-toe game, for both PPO and prompt tuning
 
-## games
+## [games](./games/)
 
 This folder contains code for game logic, and the accompanying test scripts (using `unittest` module).
 
@@ -70,7 +70,7 @@ This folder contains code for game logic, and the accompanying test scripts (usi
   - [`xiangqi.py`](./games/xiangqi.py): Main logic for this game
   - [`xiangqi_test.py`](./games/xiangqi_test.py): Test cases for this game
 
-## misc
+## [misc](./misc/)
 
 This script contains miscellaneous scripts to analyse training results and plot graphs found in my FYP report.
 
@@ -78,11 +78,11 @@ This script contains miscellaneous scripts to analyse training results and plot 
 - [`cc_stage_graph.py`](./misc/cc_stage_graph.py): Plot analysis graphs of the 3-stage curricula
 - [`overall.py`](./misc/overall.py): Plot performance graphs of different methods on each game
 
-## scripts
+## [scripts](./scripts/)
 
 This folder contains various entry points for fine-tuning and rule following tests.
 
-### cl.slurm
+### [cl.slurm](./scripts/cl.slurm)
 
 This is our main experiment, which is on curriculum learning. The script is used to run one step within a curriculum. Hence to run a full curriculum, you need to run this script multiple times.
 
@@ -105,7 +105,7 @@ After each step, there are two tests being run:
 1. Testing on valid starting positions and valid moves. The result is stored in `result.valid_start.{output_dir}.txt`.
 2. Testing on piece movement. The result is stored in `result.piece_movement.{output_dir}.txt`.
 
-### ppo.slurm
+### [ppo.slurm](./scripts/ppo.slurm)
 
 This is the experiment of running PPO with LoRA on ultimate tic-tac-toe, connect-4 or xiangqi.
 
@@ -122,7 +122,7 @@ sbatch script.slurm
 
 After the training script has run, the model will be saved to the folder indicated in `output_dir`. Run the test script with [`test.slurm`](#testslurm) on this fine-tuned model.
 
-### prompt_tuning.slurm
+### [prompt_tuning.slurm](./scripts/prompt_tuning.slurm)
 
 This is the experiment of running PPO with prefix tuning on ultimate tic-tac-toe and connect-4.
 
@@ -139,7 +139,7 @@ sbatch script.slurm
 
 After the training script has run, the model will be saved to the folder indicated in `output_dir`. Run the test script with [`test.slurm`](#testslurm) on this fine-tuned model.
 
-### test.slurm
+### [test.slurm](./scripts/test.slurm)
 
 This is the entry point for the various test scripts. Note that result of the test is stored in `result.{normalized model name}.txt`. Normalized model name is the model name with `/` replaced by `.`, removing the extra `.`'s where necessary, e.g. result of the test on `./google.gemma-2-2b-it` is stored in `result.google.gemma-2-2b-it.txt`.
 
