@@ -1,3 +1,0 @@
-Invalid format: 15
-Invalid moves: 97
-Valid moves: 388
